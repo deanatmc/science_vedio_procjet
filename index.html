@@ -3,17 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>理化自學導航 - 華麗特效版</title>
+    <title> --理化自學導航-- </title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
         
         :root {
-            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            --chen-gradient: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);
-            --liu-gradient: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
             --padlet-gradient: linear-gradient(135deg, #ec4899 0%, #be185d 100%);
         }
 
@@ -24,7 +21,6 @@
             background-attachment: fixed;
         }
 
-        /* 流動背景動畫 */
         .bg-animated {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
@@ -40,7 +36,6 @@
             100% { background-position: 0% 50%; }
         }
 
-        /* 玻璃擬態卡片 */
         .glass-card {
             background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(10px);
@@ -56,23 +51,7 @@
 
         .video-card:hover {
             transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-            border-color: rgba(99, 102, 241, 0.5);
-        }
-
-        .video-card::after {
-            content: "";
-            position: absolute;
-            top: -50%; left: -50%; width: 200%; height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.3), transparent);
-            transform: rotate(45deg);
-            transition: 0.6s;
-            opacity: 0;
-        }
-
-        .video-card:hover::after {
-            left: 100%;
-            opacity: 1;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
         }
 
         .completed {
@@ -88,47 +67,29 @@
 
         .nav-btn {
             transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
         }
 
         .nav-btn:hover {
-            transform: scale(1.1);
+            transform: scale(1.05);
             filter: brightness(1.1);
         }
 
-        .teacher-section-header {
-            border-radius: 20px;
-            padding: 1rem 2rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-        }
-
-        /* 滾動動畫 */
         .reveal {
             opacity: 0;
-            transform: translateY(30px);
-            transition: all 0.8s ease-out;
+            transform: translateY(20px);
+            transition: all 0.6s ease-out;
         }
         .reveal.active {
             opacity: 1;
             transform: translateY(0);
         }
 
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-
-        /* Padlet 特殊按鈕樣式 */
         .padlet-btn {
             background: var(--padlet-gradient);
             box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3);
-            animation: pulse 2s infinite;
         }
 
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(236, 72, 153, 0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(236, 72, 153, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(236, 72, 153, 0); }
-        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body class="text-slate-800">
@@ -136,19 +97,18 @@
 
     <header class="bg-white/80 backdrop-blur-md text-indigo-900 shadow-sm sticky top-0 z-50 border-b border-indigo-100">
         <div class="container mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
-            <h1 class="text-2xl font-black flex items-center gap-2 tracking-tight">
+            <h1 class="text-2xl font-black flex items-center gap-2">
                 <span class="bg-indigo-600 text-white p-2 rounded-lg"><i class="fas fa-bolt"></i></span>
-                理化自學 · 極速導航
+                理化自學 · 完整導航
             </h1>
             <div class="flex items-center gap-3 w-full md:w-auto">
                 <div class="relative flex-1 md:w-80">
-                    <input type="text" id="searchBar" placeholder="輸入關鍵字，開啟知識大門..." 
+                    <input type="text" id="searchBar" placeholder="搜尋章節或關鍵字..." 
                            class="w-full px-6 py-2.5 rounded-full bg-slate-100/50 border-0 focus:ring-4 focus:ring-indigo-200 transition-all text-sm">
                     <i class="fas fa-search absolute right-6 top-3.5 text-slate-400"></i>
                 </div>
-                <!-- 新增的 Padlet 連結 -->
                 <a href="https://padlet.com/deanatmc/padlet-8e8e63djiwc08sxt" target="_blank" 
-                   class="padlet-btn px-5 py-2.5 rounded-full text-white text-xs font-bold flex items-center gap-2 transition-all hover:scale-105 active:scale-95">
+                   class="padlet-btn px-5 py-2.5 rounded-full text-white text-xs font-bold flex items-center gap-2 transition-all hover:scale-105">
                     <i class="fas fa-columns"></i> Padlet 資源
                 </a>
             </div>
@@ -156,87 +116,68 @@
     </header>
 
     <main class="container mx-auto px-4 py-8">
-        <!-- 炫彩導航按鈕 -->
+        <!-- 導航 -->
         <div class="flex gap-4 mb-12 overflow-x-auto py-4 no-scrollbar justify-start md:justify-center">
-            <button onclick="scrollToId('Chen-B3')" class="nav-btn whitespace-nowrap px-6 py-3 bg-sky-500 text-white rounded-2xl text-sm font-bold shadow-lg shadow-sky-200">
-                <i class="fas fa-star mr-1"></i> 陳詮 B3
-            </button>
-            <button onclick="scrollToId('Chen-B4')" class="nav-btn whitespace-nowrap px-6 py-3 bg-sky-600 text-white rounded-2xl text-sm font-bold shadow-lg shadow-sky-200">
-                <i class="fas fa-rocket mr-1"></i> 陳詮 B4
-            </button>
-            <button onclick="scrollToId('Liu-B3')" class="nav-btn whitespace-nowrap px-6 py-3 bg-amber-500 text-white rounded-2xl text-sm font-bold shadow-lg shadow-amber-200">
-                <i class="fas fa-lightbulb mr-1"></i> 劉川楓 B3
-            </button>
-            <button onclick="scrollToId('Liu-B4')" class="nav-btn whitespace-nowrap px-6 py-3 bg-amber-600 text-white rounded-2xl text-sm font-bold shadow-lg shadow-amber-200">
-                <i class="fas fa-fire mr-1"></i> 劉川楓 B4
-            </button>
+            <button onclick="scrollToId('Chen-B4')" class="nav-btn whitespace-nowrap px-6 py-3 bg-sky-600 text-white rounded-2xl text-sm font-bold shadow-lg">陳詮 B4 完整版</button>
+            <button onclick="scrollToId('Liu-B3')" class="nav-btn whitespace-nowrap px-6 py-3 bg-amber-500 text-white rounded-2xl text-sm font-bold shadow-lg">劉川楓 B3</button>
+            <button onclick="scrollToId('Liu-B4')" class="nav-btn whitespace-nowrap px-6 py-3 bg-amber-600 text-white rounded-2xl text-sm font-bold shadow-lg">劉川楓 B4</button>
         </div>
 
-        <div id="mainContent">
-            <!-- 由 JavaScript 動態渲染 -->
-        </div>
+        <div id="mainContent"></div>
     </main>
 
-    <footer class="py-12 text-center">
-        <div class="inline-block p-4 rounded-2xl glass-card">
-            <p class="text-slate-400 text-sm font-medium italic">知識就是力量，加油！</p>
-        </div>
+    <footer class="py-12 text-center text-slate-400 text-sm">
+        <p>© 理化自學導航系統 · 祝學習順利</p>
     </footer>
 
     <script>
         const videoData = [
-            // --- 陳詮老師 區塊 ---
-            { teacher: "陳詮", cat: "B3", title: "長度與體積：精密測量的起點", url: "https://youtu.be/MgNgJvC9cCI" },
-            // B4 (依據 講義教學影片清單.pdf)
-            { teacher: "陳詮", cat: "B4", title: "C1-1 化學反應特徵：觀察變化的奧秘", url: "https://youtu.be/toMOr4DSKA" },
-            { teacher: "陳詮", cat: "B4", title: "C1-2 質量守恆：物質永遠不滅", url: "https://youtu.be/iX4ZyM9199Q", tag: "例題" },
-            { teacher: "陳詮", cat: "B4", title: "C1-3 反應係數平衡：化學的精準天平", url: "https://youtu.be/3hjhTLv6yJ0" },
-            { teacher: "陳詮", cat: "B4", title: "C1-4 原子量與莫耳：微觀世界的計量", url: "https://youtu.be/DbERFgkt7X4" },
-            { teacher: "陳詮", cat: "B4", title: "C2-1 活性與燃燒：元素的生存競爭", url: "https://youtu.be/SobXMJ7UofU" },
-            { teacher: "陳詮", cat: "B4", title: "C2-2 氧化還原：氧原子的爭奪戰", url: "https://youtu.be/taV_wdGLZ90" },
-            { teacher: "陳詮", cat: "B4", title: "C3-1 電解質：水中導電的關鍵", url: "https://youtu.be/rdEXI1sTZOA" },
-            { teacher: "陳詮", cat: "B4", title: "C3-2 酸鹼與鹽類：中和反應的精彩", url: "https://youtu.be/sceTWmRUn9k" },
-            { teacher: "陳詮", cat: "B4", title: "C4-1 反應速率：快慢之間的調節", url: "https://youtu.be/Bxgb7U5sY_8" },
-            { teacher: "陳詮", cat: "B4", title: "C5-1 有機化合物：生命的化學基石", url: "https://youtu.be/Z9piArlF2vk" },
-            { teacher: "陳詮", cat: "B4", title: "C6-1 力的平衡：靜止與運動的推手", url: "https://youtu.be/MgNgJvC9cCI" },
-            { teacher: "陳詮", cat: "B4", title: "C6-5 液體壓力：深海中的無形手掌", url: "https://youtu.be/smg8j_xdsEA" },
-            { teacher: "陳詮", cat: "B4", title: "C6-7 浮力原理：阿基米德的驚嘆", url: "https://youtu.be/tl9apJ0Fm70" },
+            // --- 陳詮 B4 (完整補齊) ---
+            { teacher: "陳詮", cat: "B4", title: "C1-1 化學反應的特徵 (含例題)", url: "https://youtu.be/toMOr4DSKA" },
+            { teacher: "陳詮", cat: "B4", title: "C1-1 化學反應特徵補充", url: "https://youtu.be/QjzEYB8QIPM" },
+            { teacher: "陳詮", cat: "B4", title: "C1-2 質量守恆例題解析", url: "https://youtu.be/iX4ZyM9199Q", tag: "例題" },
+            { teacher: "陳詮", cat: "B4", title: "C1-3 化學反應表示法", url: "https://youtu.be/98xtXVtJzKM" },
+            { teacher: "陳詮", cat: "B4", title: "C1-3 反應係數平衡", url: "https://youtu.be/3hjhTLv6yJ0" },
+            { teacher: "陳詮", cat: "B4", title: "C1-4 原子量與莫耳數", url: "https://youtu.be/DbERFgkt7X4" },
+            { teacher: "陳詮", cat: "B4", title: "C1 觀念大集合", url: "https://youtu.be/Po67Nze7pfY", tag: "複習" },
+            { teacher: "陳詮", cat: "B4", title: "C2-1 元素的燃燒與活性", url: "https://youtu.be/SobXMJ7UofU" },
+            { teacher: "陳詮", cat: "B4", title: "C2-2 氧化還原", url: "https://youtu.be/xdbabx5jaPs" },
+            { teacher: "陳詮", cat: "B4", title: "C2-2 氧化還原 (進階)", url: "https://youtu.be/taV_wdGLZ90" },
+            { teacher: "陳詮", cat: "B4", title: "C2 觀念大集合 (生活中的氧化還原)", url: "https://youtu.be/PSL2BLuhyQ" },
+            { teacher: "陳詮", cat: "B4", title: "C3-1 電解質", url: "https://youtu.be/rdEXI1sTZOA" },
+            { teacher: "陳詮", cat: "B4", title: "C3-1 檢測電解質水溶液", url: "https://youtu.be/2WQ3uuXlqfA" },
+            { teacher: "陳詮", cat: "B4", title: "C3-2 離子與根離子", url: "https://youtu.be/Dsx6S6kw" },
+            { teacher: "陳詮", cat: "B4", title: "C3-3 酸鹼與鹽類", url: "https://youtu.be/sceTWmRUn9k" },
+            { teacher: "陳詮", cat: "B4", title: "C4-1 反應速率", url: "https://youtu.be/Bxgb7U5sY_8" },
+            { teacher: "陳詮", cat: "B4", title: "C4-1 反應速率例題 (平衡)", url: "https://youtu.be/Q5Fg7ugmWbA", tag: "例題" },
+            { teacher: "陳詮", cat: "B4", title: "C4 觀念大集合", url: "https://youtu.be/Gpq_CTIMegE" },
+            { teacher: "陳詮", cat: "B4", title: "C5-1 有機化合物定義與檢測", url: "https://youtu.be/Z9piArlF2vk" },
+            { teacher: "陳詮", cat: "B4", title: "C5-1 有機化合物分類與碳氫化合物", url: "https://youtu.be/HAUf3yWr2XE" },
+            { teacher: "陳詮", cat: "B4", title: "C5-2 肥皂與去汙原理", url: "https://youtu.be/ki3Re-q97dI" },
+            { teacher: "陳詮", cat: "B4", title: "C5-3 有機聚合物", url: "https://youtu.be/TI9uVIZTne8" },
+            { teacher: "陳詮", cat: "B4", title: "C5-4 衣料纖維", url: "https://youtu.be/RB2R-panIUo" },
+            { teacher: "陳詮", cat: "B4", title: "C5 觀念大集合", url: "https://youtu.be/FKJgn7_HIQ" },
+            { teacher: "陳詮", cat: "B4", title: "C6-1 力的基本性質", url: "https://youtu.be/PTXijsBihNg" },
+            { teacher: "陳詮", cat: "B4", title: "C6-2 力的合成與分解", url: "https://youtu.be/MgNgJvC9cCI" },
+            { teacher: "陳詮", cat: "B4", title: "C6-3 虎克定律", url: "https://youtu.be/Jpmr5JMJybo" },
+            { teacher: "陳詮", cat: "B4", title: "C6 主題一例題解析", url: "https://youtu.be/aAEUIqFObeI", tag: "例題" },
+            { teacher: "陳詮", cat: "B4", title: "C6-4 摩擦力的種類與性質", url: "https://youtu.be/N7f2_6N-yul" },
+            { teacher: "陳詮", cat: "B4", title: "C6-4 影響摩擦力的因素與應用", url: "https://youtu.be/u_ygaIOg2Tw" },
+            { teacher: "陳詮", cat: "B4", title: "C6-5 壓力與液體壓力", url: "https://youtu.be/smg8j_xdsEA" },
+            { teacher: "陳詮", cat: "B4", title: "C6-7 浮力原理", url: "https://youtu.be/tl9apJ0Fm70" },
 
-            // --- 劉川楓 老師 區塊 ---
-            { teacher: "劉川楓", cat: "B3", title: "B3C1-1 實驗室探險與安全準則", url: "https://youtu.be/kQn2Nm0hrCM" },
-            { teacher: "劉川楓", cat: "B3", title: "B3C1-4 物質密度：輕重的科學指標", url: "https://youtu.be/4IX46s7JFk" },
-            { teacher: "劉川楓", cat: "B3", title: "B3C1 挑戰會考：測量篇精選", url: "https://youtu.be/1axQuntMKwk", tag: "會考" },
-            { teacher: "劉川楓", cat: "B3", title: "B3C2-2 溶解度與濃度計算", url: "https://youtu.be/CKNPX091-91" },
-            { teacher: "劉川楓", cat: "B3", title: "B3C3-2 聲音的各種面貌", url: "https://youtu.be/tkVgG1MTOq4" },
-            { teacher: "劉川楓", cat: "B3", title: "B3C4-2 面鏡反射：成像的秘密", url: "https://youtu.be/zu5hKsIMu60" },
+            // --- 劉川楓 (保留原有精選) ---
+            { teacher: "劉川楓", cat: "B3", title: "B3C1-1 實驗安全與設計", url: "https://youtu.be/kQn2Nm0hrCM" },
+            { teacher: "劉川楓", cat: "B3", title: "B3C1-4 物質的密度", url: "https://youtu.be/4IX46s7JFk" },
+            { teacher: "劉川楓", cat: "B3", title: "B3C2-2 水溶液及濃度", url: "https://youtu.be/CKNPX091-91" },
+            { teacher: "劉川楓", cat: "B3", title: "B3C3-2 聲音的傳播", url: "https://youtu.be/tkVgG1MTOq4" },
             { teacher: "劉川楓", cat: "B4", title: "B4C1-1 化學變化與質量守恆", url: "https://youtu.be/E6TeYHxIPIw" },
-            { teacher: "劉川楓", cat: "B4", title: "B4C6-6 浮沉體完全攻略", url: "https://youtu.be/hYVHIuiphG4" },
-            { teacher: "劉川楓", cat: "B4", title: "B4C6 決戰會考：力學全解析", url: "https://youtu.be/sR4Y6IIHI-U", tag: "會考" }
+            { teacher: "劉川楓", cat: "B4", title: "B4C6-6 浮沉體完全攻略", url: "https://youtu.be/hYVHIuiphG4" }
         ];
 
-        const mainContent = document.getElementById('mainContent');
-        const searchBar = document.getElementById('searchBar');
-
-        function scrollToId(id) {
-            const el = document.getElementById(id);
-            if(el) {
-                const offset = 100;
-                const top = el.getBoundingClientRect().top + window.pageYOffset - offset;
-                window.scrollTo({ top, behavior: 'smooth' });
-            }
-        }
-
-        function celebrate() {
-            confetti({
-                particleCount: 100,
-                spread: 70,
-                origin: { y: 0.6 },
-                colors: ['#6366f1', '#a855f7', '#ec4899', '#22c55e']
-            });
-        }
-
         function render(filter = "") {
-            mainContent.innerHTML = "";
+            const container = document.getElementById('mainContent');
+            container.innerHTML = "";
             const teachers = [
                 { name: "陳詮", id: "Chen", color: "sky", icon: "fa-rocket" },
                 { name: "劉川楓", id: "Liu", color: "amber", icon: "fa-bolt" }
@@ -244,110 +185,71 @@
 
             teachers.forEach(t => {
                 const teacherSection = document.createElement('div');
-                teacherSection.className = "mb-20 reveal";
-                
-                teacherSection.innerHTML = `
-                    <div class="teacher-section-header bg-white glass-card flex items-center justify-between mb-8">
-                        <h2 class="text-2xl font-bold text-${t.color}-600 flex items-center gap-3">
-                            <i class="fas ${t.icon}"></i> ${t.name} 老師
-                        </h2>
-                    </div>
-                `;
+                teacherSection.className = "mb-16 reveal active";
+                teacherSection.innerHTML = `<div class="teacher-section-header bg-white glass-card mb-6">
+                    <h2 class="text-xl font-bold text-${t.color}-600"><i class="fas ${t.icon} mr-2"></i>${t.name} 老師</h2>
+                </div>`;
 
-                ["B3", "B4"].forEach(semester => {
-                    const list = videoData.filter(v => 
-                        v.teacher === t.name && 
-                        v.cat === semester &&
-                        v.title.toLowerCase().includes(filter.toLowerCase())
-                    );
-
+                ["B3", "B4"].forEach(sem => {
+                    const list = videoData.filter(v => v.teacher === t.name && v.cat === sem && v.title.includes(filter));
                     if (list.length === 0) return;
 
-                    const semGroup = document.createElement('div');
-                    semGroup.id = `${t.id}-${semester}`;
-                    semGroup.className = "mb-10";
-                    semGroup.innerHTML = `
-                        <div class="flex items-center gap-4 mb-6">
-                            <span class="px-4 py-1 rounded-full bg-${t.color}-100 text-${t.color}-700 text-xs font-black uppercase tracking-widest">
-                                ${semester === 'B3' ? 'Grade 8 Vol.1' : 'Grade 8 Vol.2'}
-                            </span>
-                            <div class="h-px flex-1 bg-slate-200"></div>
-                        </div>
-                    `;
-
-                    const grid = document.createElement('div');
-                    grid.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6";
-
+                    const group = document.createElement('div');
+                    group.id = `${t.id}-${sem}`;
+                    group.className = "mb-8";
+                    group.innerHTML = `<h3 class="text-sm font-bold text-slate-400 mb-4 ml-2 uppercase tracking-widest">${sem} 章節清單</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>`;
+                    
+                    const grid = group.querySelector('div');
                     list.forEach(v => {
                         const isDone = localStorage.getItem(v.url) === 'true';
                         const card = document.createElement('div');
-                        card.className = `video-card glass-card p-6 rounded-3xl flex flex-col justify-between ${isDone ? 'completed' : ''}`;
+                        card.className = `video-card glass-card p-5 rounded-2xl flex flex-col justify-between ${isDone ? 'completed' : ''}`;
                         card.innerHTML = `
                             <div>
-                                <div class="flex justify-between items-center mb-4">
-                                    <div class="p-2 rounded-xl bg-slate-100 text-slate-500 text-[10px] font-bold">
-                                        <i class="far fa-clock mr-1"></i>精彩教學
-                                    </div>
-                                    ${v.tag ? `<span class="px-2 py-1 rounded-lg bg-rose-100 text-rose-600 text-[10px] font-bold">${v.tag}</span>` : ''}
+                                <div class="flex justify-between items-start mb-2">
+                                    <span class="text-[10px] font-bold text-slate-400">${v.cat}</span>
+                                    ${v.tag ? `<span class="bg-red-100 text-red-600 text-[10px] px-2 py-0.5 rounded font-bold">${v.tag}</span>` : ''}
                                 </div>
-                                <h4 class="video-title text-base font-bold text-slate-800 leading-relaxed mb-6">${v.title}</h4>
+                                <h4 class="video-title text-sm font-bold text-slate-700 leading-snug mb-4">${v.title}</h4>
                             </div>
-                            <div class="flex items-center justify-between pt-4 border-t border-slate-100/50">
-                                <a href="${v.url}" target="_blank" class="flex items-center gap-2 text-sm font-bold text-indigo-600 hover:text-indigo-800 transition-colors">
-                                    <span class="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center text-xs">
-                                        <i class="fas fa-play"></i>
-                                    </span>
-                                    立即播放
+                            <div class="flex items-center justify-between border-t border-slate-100 pt-3">
+                                <a href="${v.url}" target="_blank" class="text-indigo-600 text-xs font-bold flex items-center gap-1 hover:underline">
+                                    <i class="fas fa-play-circle"></i> 觀看影片
                                 </a>
-                                <label class="relative flex items-center cursor-pointer">
-                                    <input type="checkbox" ${isDone ? 'checked' : ''} onchange="toggle('${v.url}', this)" 
-                                           class="sr-only peer">
-                                    <div class="w-10 h-10 rounded-full border-2 border-slate-200 flex items-center justify-center peer-checked:bg-green-500 peer-checked:border-green-500 transition-all">
-                                        <i class="fas fa-check text-white scale-0 peer-checked:scale-100 transition-transform"></i>
-                                    </div>
-                                </label>
+                                <input type="checkbox" ${isDone ? 'checked' : ''} onchange="toggle('${v.url}', this)" class="w-5 h-5 rounded-full accent-green-500 cursor-pointer">
                             </div>
                         `;
                         grid.appendChild(card);
                     });
-
-                    semGroup.appendChild(grid);
-                    teacherSection.appendChild(semGroup);
+                    teacherSection.appendChild(group);
                 });
-
-                if (teacherSection.children.length > 1) {
-                    mainContent.appendChild(teacherSection);
-                }
+                if (teacherSection.children.length > 1) container.appendChild(teacherSection);
             });
-            
-            handleScroll();
         }
 
         window.toggle = (url, el) => {
             if (el.checked) {
                 localStorage.setItem(url, 'true');
-                celebrate();
+                confetti({ particleCount: 100, spread: 70, origin: { y: 0.7 } });
             } else {
                 localStorage.removeItem(url);
             }
-            setTimeout(() => render(searchBar.value), 300);
+            setTimeout(() => render(document.getElementById('searchBar').value), 300);
         };
 
+        window.scrollToId = (id) => {
+            const el = document.getElementById(id);
+            if(el) window.scrollTo({ top: el.offsetTop - 100, behavior: 'smooth' });
+        };
+
+        document.getElementById('searchBar').addEventListener('input', (e) => render(e.target.value));
         function handleScroll() {
-            const reveals = document.querySelectorAll('.reveal');
-            reveals.forEach(el => {
-                const windowHeight = window.innerHeight;
-                const elementTop = el.getBoundingClientRect().top;
-                const elementVisible = 100;
-                if (elementTop < windowHeight - elementVisible) {
-                    el.classList.add('active');
-                }
+            document.querySelectorAll('.reveal').forEach(el => {
+                if (el.getBoundingClientRect().top < window.innerHeight - 50) el.classList.add('active');
             });
         }
-
         window.addEventListener('scroll', handleScroll);
-        searchBar.addEventListener('input', (e) => render(e.target.value));
-        
         render();
     </script>
 </body>
