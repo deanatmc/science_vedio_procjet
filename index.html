@@ -3,152 +3,223 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>理化自學導航 - Supabase 雲端版</title>
+    <title>理化自學導航 - 安全存取版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-    <!-- 引入 Supabase SDK -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
-        :root { --accent-gradient: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%); }
         body { font-family: 'Noto Sans TC', sans-serif; background: #f8fafc; min-height: 100vh; }
         .bg-animated { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(120deg, #f0f9ff, #e0f2fe, #fdfcfb); background-size: 400% 400%; z-index: -1; animation: gradientBG 15s ease infinite; }
         @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
         .glass-card { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03); }
-        .video-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
-        .video-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08); border-color: #bae6fd; }
-        .completed { background: rgba(220, 252, 231, 0.7) !important; border-color: #4ade80 !important; }
-        .completed .video-title { color: #166534; text-decoration: line-through; opacity: 0.6; }
+        .video-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 2px solid transparent; }
+        .video-card:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05); border-color: #e2e8f0; }
+        .completed { background: rgba(220, 252, 231, 0.6) !important; border-color: #4ade80 !important; }
+        .completed .video-title { color: #166534; text-decoration: line-through; opacity: 0.7; }
+        .tag-pill { font-size: 10px; padding: 2px 8px; border-radius: 99px; font-weight: bold; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
+        #authOverlay { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; background: #f8fafc; transition: opacity 0.5s ease; }
+        .shake { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
+        @keyframes shake { 10%, 90% { transform: translate3d(-1px, 0, 0); } 20%, 80% { transform: translate3d(2px, 0, 0); } 30%, 50%, 70% { transform: translate3d(-4px, 0, 0); } 40%, 60% { transform: translate3d(4px, 0, 0); } }
     </style>
 </head>
 <body class="text-slate-800">
     <div class="bg-animated"></div>
 
-    <header class="bg-white/90 backdrop-blur-lg border-b border-slate-200 sticky top-0 z-50">
-        <div class="container mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div>
-                <h1 class="text-2xl font-black flex items-center gap-2 text-sky-600">
-                    <span class="bg-sky-600 text-white p-2 rounded-xl shadow-lg shadow-sky-200"><i class="fas fa-bolt"></i></span>
-                    理化雲端導航
-                </h1>
-                <p id="syncStatus" class="text-[11px] text-slate-400 mt-1 font-medium"><i class="fas fa-circle-notch fa-spin mr-1"></i>正在初始化連線...</p>
+    <!-- 密碼驗證介面 -->
+    <div id="authOverlay">
+        <div id="authCard" class="glass-card p-8 rounded-3xl w-full max-w-md text-center border-2 border-sky-100 mx-4">
+            <div class="bg-sky-600 text-white w-16 h-16 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-6 shadow-lg shadow-sky-200">
+                <i class="fas fa-lock"></i>
             </div>
-            <div class="flex items-center gap-3 w-full md:w-auto">
-                <div class="relative flex-1 md:w-64">
-                    <input type="text" id="searchBar" placeholder="關鍵字搜尋課程..." class="w-full pl-10 pr-4 py-2.5 rounded-full bg-slate-100/80 border-none text-sm focus:ring-2 focus:ring-sky-500 transition-all">
-                    <i class="fas fa-search absolute left-4 top-3 text-slate-400"></i>
+            <h2 class="text-2xl font-black text-slate-800 mb-2">安全存取驗證</h2>
+            <p class="text-slate-500 text-sm mb-6">請輸入課程密碼以進入學習系統</p>
+            <input type="password" id="passwordInput" placeholder="輸入密碼" class="w-full px-4 py-3 rounded-xl bg-slate-100 border border-slate-200 focus:ring-2 focus:ring-sky-500 outline-none transition-all mb-4 text-center text-lg tracking-widest">
+            <button id="verifyBtn" class="w-full py-3 bg-sky-600 text-white rounded-xl font-bold shadow-lg shadow-sky-100 hover:bg-sky-700 active:scale-95 transition-all">驗證進入</button>
+            <p id="errorMsg" class="text-red-500 text-xs mt-4 opacity-0 transition-opacity">密碼錯誤，請檢查大小寫與空白</p>
+        </div>
+    </div>
+
+    <!-- 主內容區 -->
+    <div id="appContainer" class="hidden">
+        <header class="bg-white/90 backdrop-blur-lg border-b border-slate-200 sticky top-0 z-50">
+            <div class="container mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+                <div>
+                    <h1 class="text-2xl font-black flex items-center gap-2 text-sky-600">
+                        <span class="bg-sky-600 text-white p-2 rounded-xl shadow-lg"><i class="fas fa-microscope"></i></span>
+                        理化雲端導航
+                    </h1>
+                    <p id="syncStatus" class="text-[11px] text-slate-400 mt-1 font-medium"><i class="fas fa-circle-notch fa-spin mr-1"></i>連線中...</p>
                 </div>
-                <div class="flex items-center bg-slate-100 rounded-full px-4 py-2 border border-slate-200">
-                    <span class="text-[10px] font-bold text-slate-500 mr-2">同步 ID:</span>
-                    <span id="displayId" class="text-[10px] font-mono text-sky-600 select-all font-bold">載入中...</span>
+                <div class="flex items-center gap-3 w-full md:w-auto">
+                    <input type="text" id="searchBar" placeholder="搜尋課程或考題..." class="flex-1 md:w-64 pl-10 pr-4 py-2 rounded-full bg-slate-100/80 text-sm focus:ring-2 focus:ring-sky-500 transition-all outline-none">
+                    <div class="flex items-center bg-slate-100 rounded-full px-4 py-2 border border-slate-200">
+                        <span class="text-[10px] font-bold text-slate-500 mr-2">ID:</span>
+                        <span id="displayId" class="text-[10px] font-mono text-sky-600 font-bold">載入中...</span>
+                    </div>
                 </div>
             </div>
-        </div>
-    </header>
+        </header>
 
-    <main class="container mx-auto px-4 py-8">
-        <div class="flex gap-3 mb-10 overflow-x-auto pb-4 no-scrollbar">
-            <button onclick="scrollToId('Chen-B3')" class="px-5 py-2.5 bg-sky-500 text-white rounded-2xl text-xs font-black shadow-lg shadow-sky-100 whitespace-nowrap">陳詮 B3</button>
-            <button onclick="scrollToId('Chen-B4')" class="px-5 py-2.5 bg-sky-700 text-white rounded-2xl text-xs font-black shadow-lg shadow-sky-100 whitespace-nowrap">陳詮 B4</button>
-            <button onclick="scrollToId('Liu-B3')" class="px-5 py-2.5 bg-amber-500 text-white rounded-2xl text-xs font-black shadow-lg shadow-amber-100 whitespace-nowrap">劉川楓 B3</button>
-            <button onclick="scrollToId('Liu-B4')" class="px-5 py-2.5 bg-amber-600 text-white rounded-2xl text-xs font-black shadow-lg shadow-amber-100 whitespace-nowrap">劉川楓 B4</button>
-        </div>
+        <main class="container mx-auto px-4 py-8">
+            <!-- AI 連結專區 -->
+            <section class="mb-12">
+                <div class="flex items-center gap-3 mb-4">
+                    <i class="fas fa-robot text-indigo-500 text-xl"></i>
+                    <h2 class="text-lg font-bold text-slate-700">AI 影片學習助手</h2>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <a href="https://wayin.ai/zh-tw/tools/video-summarizer/" target="_blank" class="glass-card p-4 rounded-2xl flex items-center gap-4 border border-indigo-100 hover:bg-slate-50 transition-all">
+                        <div class="w-12 h-12 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-indigo-900">Wayin.ai 摘要</h4>
+                            <p class="text-xs text-slate-500">輸入連結，快速生成影片重點與大綱</p>
+                        </div>
+                    </a>
+                    <a href="https://www.easemate.ai/" target="_blank" class="glass-card p-4 rounded-2xl flex items-center gap-4 border border-purple-100 hover:bg-slate-50 transition-all">
+                        <div class="w-12 h-12 rounded-xl bg-purple-50 flex items-center justify-center text-purple-600">
+                            <i class="fas fa-brain"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-purple-900">Easemate AI</h4>
+                            <p class="text-xs text-slate-500">智能筆記助手，深入理解影片知識點</p>
+                        </div>
+                    </a>
+                </div>
+            </section>
 
-        <div id="mainContent"></div>
-    </main>
+            <div class="flex gap-2 mb-8 overflow-x-auto pb-2 no-scrollbar">
+                <button onclick="scrollToId('Chen-Section')" class="px-4 py-2 bg-sky-600 text-white rounded-full text-xs font-bold shrink-0 shadow-md transition-transform active:scale-95">陳詮老師專區</button>
+                <button onclick="scrollToId('Liu-Section')" class="px-4 py-2 bg-amber-600 text-white rounded-full text-xs font-bold shrink-0 shadow-md transition-transform active:scale-95">劉川楓老師專區</button>
+            </div>
+
+            <div id="mainContent"></div>
+        </main>
+    </div>
 
     <script type="module">
-        // --- Supabase 初始化 ---
+        // --- 安全驗證模組 ---
+        const RAW_PWD = "studyscience"; // 明文備用
+        const CORRECT_HASH = "85e330598818a5948332152862d2948174577f805a91f53194a0808a5f64303d";
+
+        const sha256 = async (message) => {
+            try {
+                const msgBuffer = new TextEncoder().encode(message);
+                const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            } catch (e) {
+                console.error("SHA-256 Fail:", e);
+                return null;
+            }
+        };
+
+        const handleAuthSuccess = () => {
+            sessionStorage.setItem('is_authed', 'true');
+            const overlay = document.getElementById('authOverlay');
+            if (overlay) {
+                overlay.style.opacity = '0';
+                setTimeout(() => {
+                    overlay.remove();
+                    document.getElementById('appContainer').classList.remove('hidden');
+                    initApp();
+                }, 500);
+            }
+        };
+
+        const checkAuth = () => {
+            if (sessionStorage.getItem('is_authed') === 'true') {
+                handleAuthSuccess();
+            }
+        };
+
+        const verify = async () => {
+            const input = document.getElementById('passwordInput').value.trim();
+            const errorMsg = document.getElementById('errorMsg');
+            const authCard = document.getElementById('authCard');
+
+            if (!input) return;
+
+            const hashedInput = await sha256(input);
+            
+            // 同時檢查哈希值與明文（確保加密函式庫失效時仍能進入）
+            if (hashedInput === CORRECT_HASH || input === RAW_PWD) {
+                handleAuthSuccess();
+            } else {
+                authCard.classList.add('shake');
+                errorMsg.classList.remove('opacity-0');
+                setTimeout(() => {
+                    authCard.classList.remove('shake');
+                    errorMsg.classList.add('opacity-0');
+                }, 1000);
+            }
+        };
+
+        document.getElementById('verifyBtn').addEventListener('click', verify);
+        document.getElementById('passwordInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') verify();
+        });
+
+        // --- Supabase 核心 ---
         const supabaseUrl = 'https://piovrdifroesqwozwtnm.supabase.co';
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBpb3ZyZGlmcm9lc3F3b3p3dG5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1OTE3NTgsImV4cCI6MjA5MjE2Nzc1OH0.7lmWsr8gd99rNXoZNdSuoVffiny-Z5Zt7jEhZPRXGf8';
-        
         const { createClient } = supabase;
         const supabaseInstance = createClient(supabaseUrl, supabaseKey);
 
-        const userId = localStorage.getItem('science_app_uid') || 'study_group_001'; 
+        const userId = localStorage.getItem('science_app_uid') || 'user_' + Math.floor(Math.random()*10000); 
         localStorage.setItem('science_app_uid', userId);
-        document.getElementById('displayId').innerText = userId;
 
         let completedMap = {};
 
-        // --- 課程清單 ---
         const videoData = [
-            { teacher: "陳詮", cat: "B3", title: "C1-1 長度與體積測量", url: "https://youtu.be/MgNgJvC9cCI" },
-            { teacher: "陳詮", cat: "B3", title: "C1-2 質量的測量", url: "https://youtu.be/Jpmr5JMJybo" },
-            { teacher: "陳詮", cat: "B3", title: "C1-3 密度的奧秘", url: "https://youtu.be/aAEUIqFObeI" },
-            { teacher: "陳詮", cat: "B3", title: "C2-1 認識物質的狀態", url: "https://youtu.be/u_ygaIOg2Tw" },
-            { teacher: "陳詮", cat: "B3", title: "C2-2 水溶液與溶解度", url: "https://youtu.be/N7f2_6N-yul" },
-            { teacher: "陳詮", cat: "B3", title: "C3-1 波的傳播性質", url: "https://youtu.be/Po67Nze7pfY" },
-            { teacher: "陳詮", cat: "B3", title: "C3-2 聲音的產生與傳播", url: "https://youtu.be/Bxgb7U5sY_8" },
-            { teacher: "陳詮", cat: "B3", title: "C4-1 光的反射與平面鏡", url: "https://youtu.be/TI9uVIZTne8" },
-            { teacher: "陳詮", cat: "B3", title: "C4-2 折射與透鏡成像", url: "https://youtu.be/RB2R-panIUo" },
-            { teacher: "陳詮", cat: "B3", title: "C5-1 溫度與熱量", url: "https://youtu.be/FKJgn7_HIQ" },
-            { teacher: "陳詮", cat: "B3", title: "C5-2 比熱與熱對物質影響", url: "https://youtu.be/PTXijsBihNg" },
-            { teacher: "陳詮", cat: "B4", title: "C1-1 化學反應特徵", url: "https://youtu.be/toMOr4DSKA" },
-            { teacher: "陳詮", cat: "B4", title: "C1-2 質量守恆", url: "https://youtu.be/iX4ZyM9199Q" },
-            { teacher: "陳詮", cat: "B4", title: "C1-3 化學反應表示法", url: "https://youtu.be/98xtXVtJzKM" },
-            { teacher: "陳詮", cat: "B4", title: "C1-4 原子量與莫耳數", url: "https://youtu.be/DbERFgkt7X4" },
-            { teacher: "陳詮", cat: "B4", title: "C2-2 氧化還原反應", url: "https://youtu.be/xdbabx5jaPs" },
-            { teacher: "陳詮", cat: "B4", title: "C3-1 電解質與解離", url: "https://youtu.be/rdEXI1sTZOA" },
-            { teacher: "陳詮", cat: "B4", title: "C5-1 有機化合物檢測", url: "https://youtu.be/Z9piArlF2vk" },
-            { teacher: "陳詮", cat: "B4", title: "C6-7 浮力原理大解析", url: "https://youtu.be/tl9apJ0Fm70" },
-            { teacher: "劉川楓", cat: "B3", title: "B3C1-1 實驗安全與設計", url: "https://youtu.be/kQn2Nm0hrCM" },
-            { teacher: "劉川楓", cat: "B3", title: "B3C1-2 長度與體積測量", url: "https://youtu.be/8_2rn5JM3g4" },
-            { teacher: "劉川楓", cat: "B3", title: "B3C1-3 質量的測量", url: "https://youtu.be/Sfot4hVt-js" },
-            { teacher: "劉川楓", cat: "B3", title: "B3C1-4 物質的密度", url: "https://youtu.be/4IX46s7JFk" },
-            { teacher: "劉川楓", cat: "B3", title: "B3C2-1 認識物質", url: "https://youtu.be/aEEd5MhLTD0" },
-            { teacher: "劉川楓", cat: "B3", title: "B3C2-2 水溶液及濃度", url: "https://youtu.be/CKNPX091-91" },
-            { teacher: "劉川楓", cat: "B3", title: "B3C3-1 波的傳播", url: "https://youtu.be/JAxyGBJsLgk" },
-            { teacher: "劉川楓", cat: "B3", title: "B3C3-2 聲音的傳播", url: "https://youtu.be/tkVgG1MTOq4" },
-            { teacher: "劉川楓", cat: "B4", title: "B4C1-1 化學變化與質量守恆", url: "https://youtu.be/E6TeYHxIPIw" },
-            { teacher: "劉川楓", cat: "B4", title: "B4C1-2 原子量與莫耳數", url: "https://youtu.be/JmRan81w-Jg" },
-            { teacher: "劉川楓", cat: "B4", title: "B4C2-1 氧化反應", url: "https://youtu.be/Oera419Rfd4" },
-            { teacher: "劉川楓", cat: "B4", title: "B4C3-1 認識電解質", url: "https://youtu.be/S-g81LsVVYU" }
+            { teacher: "陳詮", cat: "B4-C1", type: "觀念", title: "化學反應的特徵", url: "https://youtu.be/toMOr4DSKA" },
+            { teacher: "陳詮", cat: "B4-C1", type: "例題", title: "化學反應特徵 例題", url: "https://youtu.be/QjzEYB8QIPM" },
+            { teacher: "陳詮", cat: "B4-C1", type: "例題", title: "質量守恆 例題", url: "https://youtu.be/iX4ZyM9199Q" },
+            { teacher: "陳詮", cat: "B4-C1", type: "觀念", title: "化學反應表示法及平衡", url: "https://youtu.be/98xtXVtJzKM" },
+            { teacher: "陳詮", cat: "B4-C1", type: "例題", title: "反應係數平衡 例題", url: "https://youtu.be/3hjhTLv6yJ0" },
+            { teacher: "陳詮", cat: "B4-C1", type: "觀念", title: "原子量與莫耳數", url: "https://youtu.be/DbERFgkt7X4" },
+            { teacher: "陳詮", cat: "B4-C2", type: "觀念", title: "氧化還原", url: "https://youtu.be/xdbabx5jaPs" },
+            { teacher: "陳詮", cat: "B4-C3", type: "觀念", title: "常見的酸與鹼", url: "https://youtu.be/iJcZUdMj0Zg" },
+            { teacher: "陳詮", cat: "B4-C4", type: "觀念", title: "影響反應速率的因子", url: "https://youtu.be/XAgU_UU8Lhk" },
+            { teacher: "陳詮", cat: "B4-C5", type: "觀念", title: "有機化合物的定義與檢測", url: "https://youtu.be/Z9piArlF2vk" },
+            { teacher: "陳詮", cat: "B4-C6", type: "觀念", title: "浮力的來源及測量", url: "https://youtu.be/tl9apJ0Fm70" },
+            { teacher: "劉川楓", cat: "B3-C1", type: "觀念", title: "B3C1-4 物質的密度", url: "https://youtu.be/4IX46s7JFk" },
+            { teacher: "劉川楓", cat: "B3-C1", type: "考題", title: "B3C1 歷屆會考試題解析", url: "https://youtu.be/1axQuntMKwk" },
+            { teacher: "劉川楓", cat: "B4-C1", type: "觀念", title: "B4C1-2 原子量與莫耳數", url: "https://youtu.be/JmRan81w-Jg" }
         ];
 
         window.render = (filter = "") => {
             const container = document.getElementById('mainContent');
+            if (!container) return;
             container.innerHTML = "";
             const teachers = [
-                { name: "陳詮", id: "Chen", color: "sky" },
-                { name: "劉川楓", id: "Liu", color: "amber" }
+                { name: "陳詮", id: "Chen", textColor: "sky-600", bgColor: "sky-500" },
+                { name: "劉川楓", id: "Liu", textColor: "amber-600", bgColor: "amber-500" }
             ];
 
             teachers.forEach(t => {
                 const section = document.createElement('div');
-                section.className = "mb-12";
-                section.innerHTML = `<h2 class="text-xl font-black text-${t.color}-600 mb-6 px-2 flex items-center gap-3">
-                    <span class="w-1.5 h-8 bg-${t.color}-500 rounded-full"></span> ${t.name} 老師影片專區</h2>`;
+                section.id = `${t.id}-Section`;
+                section.className = "mb-16";
+                section.innerHTML = `<div class="flex items-center gap-4 mb-8"><div class="h-10 w-2 bg-${t.bgColor} rounded-full"></div><h2 class="text-2xl font-black text-${t.textColor}">${t.name} 老師專區</h2></div>`;
 
-                ["B3", "B4"].forEach(sem => {
-                    const list = videoData.filter(v => v.teacher === t.name && v.cat === sem && v.title.toLowerCase().includes(filter.toLowerCase()));
+                const cats = [...new Set(videoData.filter(v => v.teacher === t.name).map(v => v.cat))].sort();
+                cats.forEach(cat => {
+                    const list = videoData.filter(v => v.teacher === t.name && v.cat === cat && v.title.toLowerCase().includes(filter.toLowerCase()));
                     if (list.length === 0) return;
-
                     const group = document.createElement('div');
-                    group.id = `${t.id}-${sem}`;
-                    group.className = "mb-8";
-                    group.innerHTML = `<h3 class="text-xs font-bold text-slate-400 mb-4 px-2 uppercase tracking-widest">${sem} 課程內容</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>`;
-                    
+                    group.className = "mb-10";
+                    group.innerHTML = `<h3 class="text-sm font-bold text-slate-400 mb-4 ml-2 border-b border-slate-200 pb-1 inline-block">${cat}</h3><div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5"></div>`;
                     const grid = group.querySelector('div');
                     list.forEach(v => {
                         const isDone = completedMap[v.url] === true;
                         const card = document.createElement('div');
-                        card.className = `video-card glass-card p-5 rounded-2xl flex flex-col justify-between border ${isDone ? 'completed' : 'border-transparent'}`;
-                        card.innerHTML = `
-                            <h4 class="video-title text-sm font-bold text-slate-700 leading-snug mb-5">${v.title}</h4>
-                            <div class="flex items-center justify-between pt-4 border-t border-slate-100/50">
-                                <a href="${v.url}" target="_blank" class="text-sky-600 text-xs font-bold flex items-center gap-1 hover:text-sky-800">
-                                    <i class="fab fa-youtube text-red-500 text-lg mr-1"></i> 播放
-                                </a>
-                                <label class="flex items-center gap-2 cursor-pointer group">
-                                    <span class="text-[10px] text-slate-400 group-hover:text-slate-600">${isDone ? '已完讀' : '完成'}</span>
-                                    <input type="checkbox" ${isDone ? 'checked' : ''} onchange="updateProgress('${v.url}', this.checked)" class="w-5 h-5 rounded-lg accent-green-500 cursor-pointer">
-                                </label>
-                            </div>
-                        `;
+                        card.className = `video-card glass-card p-5 rounded-2xl flex flex-col justify-between ${isDone ? 'completed' : ''}`;
+                        card.innerHTML = `<div><div class="flex justify-between items-start mb-3"><span class="tag-pill bg-slate-100 text-slate-500">${v.type}</span><input type="checkbox" ${isDone ? 'checked' : ''} onchange="updateProgress('${v.url}', this.checked)" class="w-6 h-6 rounded-full accent-green-500 cursor-pointer"></div><h4 class="video-title text-base font-bold text-slate-700 leading-tight mb-4">${v.title}</h4></div><div class="flex items-center justify-between pt-4 border-t border-slate-100"><a href="${v.url}" target="_blank" class="text-red-500 text-sm font-bold flex items-center gap-1 hover:underline"><i class="fab fa-youtube"></i> 播放影片</a></div>`;
                         grid.appendChild(card);
                     });
                     section.appendChild(group);
@@ -158,67 +229,53 @@
         };
 
         window.updateProgress = async (url, checked) => {
-            if (checked) {
-                completedMap[url] = true;
-                confetti({ particleCount: 100, spread: 70, origin: { y: 0.8 }, colors: ['#0ea5e9', '#22c55e'] });
-            } else {
-                delete completedMap[url];
+            if (checked) { 
+                completedMap[url] = true; 
+                confetti({ particleCount: 50, spread: 60, origin: { y: 0.8 } }); 
+            } else { 
+                delete completedMap[url]; 
             }
-
             localStorage.setItem('science_completed', JSON.stringify(completedMap));
-            
             try {
                 await supabaseInstance.from('science_tracker').upsert({ user_id: userId, data: completedMap });
+                document.getElementById('syncStatus').innerHTML = `<i class="fas fa-check text-green-500 mr-1"></i>雲端已同步`;
             } catch (err) {
-                console.error("同步失敗:", err);
+                document.getElementById('syncStatus').innerHTML = `<i class="fas fa-exclamation-triangle text-red-400 mr-1"></i>同步失敗`;
             }
             render(document.getElementById('searchBar').value);
         };
 
-        // 改用 Polling 輪詢機制來解決 WebSocket 權限問題
-        const fetchLatestData = async () => {
-            try {
-                const { data, error } = await supabaseInstance.from('science_tracker').select('data').eq('user_id', userId).single();
-                if (data && JSON.stringify(data.data) !== JSON.stringify(completedMap)) {
-                    completedMap = data.data;
-                    render(document.getElementById('searchBar').value);
-                    document.getElementById('syncStatus').innerHTML = `<i class="fas fa-check-circle text-green-500 mr-1"></i>雲端已同步`;
-                }
-            } catch (e) {
-                console.error("輪詢更新失敗:", e);
-            }
-        };
-
-        const initSync = async () => {
-            // 初始載入
+        const initApp = async () => {
+            const displayId = document.getElementById('displayId');
+            if (displayId) displayId.innerText = userId;
+            
             const local = localStorage.getItem('science_completed');
             if (local) completedMap = JSON.parse(local);
             render();
-
+            
             try {
                 const { data } = await supabaseInstance.from('science_tracker').select('data').eq('user_id', userId).single();
-                if (data) {
-                    completedMap = data.data;
-                    render();
-                    document.getElementById('syncStatus').innerHTML = `<i class="fas fa-check-circle text-green-500 mr-1"></i>雲端已連線 (Polling模式)`;
-                } else {
-                    document.getElementById('syncStatus').innerHTML = `<i class="fas fa-cloud-upload-alt text-sky-400 mr-1"></i>新裝置`;
+                if (data) { 
+                    completedMap = data.data; 
+                    render(); 
+                    document.getElementById('syncStatus').innerHTML = `<i class="fas fa-cloud text-sky-500 mr-1"></i>雲端已載入`; 
                 }
-                
-                // 設定每 5 秒檢查一次更新
-                setInterval(fetchLatestData, 5000);
-            } catch (e) {
-                document.getElementById('syncStatus').innerHTML = `<i class="fas fa-exclamation-triangle text-amber-500 mr-1"></i>本機模式`;
+            } catch (e) { 
+                document.getElementById('syncStatus').innerHTML = `<i class="fas fa-wifi text-amber-500 mr-1"></i>離線模式`; 
             }
         };
 
         window.scrollToId = (id) => {
             const el = document.getElementById(id);
-            if(el) window.scrollTo({ top: el.offsetTop - 120, behavior: 'smooth' });
+            if(el) window.scrollTo({ top: el.offsetTop - 100, behavior: 'smooth' });
         };
 
-        document.getElementById('searchBar').addEventListener('input', (e) => render(e.target.value));
-        initSync();
+        const searchBar = document.getElementById('searchBar');
+        if (searchBar) {
+            searchBar.addEventListener('input', (e) => render(e.target.value));
+        }
+
+        checkAuth();
     </script>
 </body>
 </html>
