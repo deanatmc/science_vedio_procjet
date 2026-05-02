@@ -1,374 +1,354 @@
-```html
 <!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>理化雲端導航 | 行動學習</title>
+    <title>理化雲端導航 | 旗艦完整版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
-        
-        :root {
-            --safe-area-inset-bottom: env(safe-area-inset-bottom);
-        }
-
-        body { 
-            font-family: 'Noto Sans TC', sans-serif; 
-            background: #f1f5f9; 
-            min-height: 100vh;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .bg-animated { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #f1f5f9 100%);
-            z-index: -1; 
-        }
-
-        .glass-card { 
-            background: rgba(255, 255, 255, 0.9); 
-            backdrop-filter: blur(10px); 
-            border: 1px solid rgba(255, 255, 255, 0.7);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
-        }
-
-        /* 手機版卡片樣式 */
-        .video-card {
-            border-radius: 20px;
-            padding: 16px;
-            transition: transform 0.2s;
-        }
-        
-        .video-card:active {
-            transform: scale(0.98);
-        }
-
-        .completed { 
-            background: rgba(232, 252, 238, 0.9) !important; 
-            border-color: #bbf7d0 !important; 
-        }
-        
-        .completed .video-title { 
-            color: #166534; 
-            opacity: 0.6;
-        }
-
-        /* 自定義大尺寸 Checkbox */
-        .custom-checkbox {
-            width: 28px;
-            height: 28px;
-            border-radius: 8px;
-            border: 2px solid #cbd5e1;
-            appearance: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s;
-            background: white;
-        }
-
-        .custom-checkbox:checked {
-            background: #22c55e;
-            border-color: #22c55e;
-        }
-
-        .custom-checkbox:checked::after {
-            content: "\f00c";
-            font-family: "Font Awesome 6 Free";
-            font-weight: 900;
-            color: white;
-            font-size: 14px;
-        }
-
-        /* 底部導航欄 */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: calc(65px + var(--safe-area-inset-bottom));
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(15px);
-            border-top: 1px solid #e2e8f0;
-            display: flex;
-            justify-content: space-around;
-            align-items: center;
-            padding-bottom: var(--safe-area-inset-bottom);
-            z-index: 100;
-        }
-
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: #94a3b8;
-            font-size: 10px;
-            font-weight: bold;
-        }
-
-        .nav-item.active {
-            color: #0ea5e9;
-        }
-
-        .nav-item i {
-            font-size: 20px;
-            margin-bottom: 4px;
-        }
-
-        /* 隱藏原生捲軸 */
-        .no-scrollbar::-webkit-scrollbar { display: none; }
-        
-        /* 認證畫面優化 */
-        #authOverlay { 
-            position: fixed; inset: 0; z-index: 2000; 
-            display: flex; align-items: center; justify-content: center; 
-            background: #f8fafc;
-        }
+        body { font-family: 'Noto Sans TC', sans-serif; background: #f8fafc; color: #1e293b; -webkit-tap-highlight-color: transparent; }
+        .glass-card { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border: 1px solid #e2e8f0; }
+        .video-card { transition: all 0.2s ease; cursor: pointer; border-radius: 20px; }
+        .video-card:active { transform: scale(0.97); }
+        .completed { background: #f0fdf4 !important; border-color: #bbf7d0 !important; }
+        .completed .title-text { color: #166534; text-decoration: line-through; opacity: 0.6; }
+        .custom-checkbox { width: 22px; height: 22px; border-radius: 7px; border: 2px solid #cbd5e1; appearance: none; display: flex; align-items: center; justify-content: center; background: white; transition: 0.2s; flex-shrink: 0; }
+        .custom-checkbox:checked { background: #22c55e; border-color: #22c55e; }
+        .custom-checkbox:checked::after { content: "\f00c"; font-family: "Font Awesome 6 Free"; font-weight: 900; color: white; font-size: 11px; }
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; border-top: 1px solid #f1f5f9; display: flex; justify-content: space-around; padding: 12px 0 calc(12px + env(safe-area-inset-bottom)); z-index: 50; box-shadow: 0 -4px 12px rgba(0,0,0,0.03); }
+        .nav-btn { display: flex; flex-direction: column; align-items: center; font-size: 11px; color: #94a3b8; font-weight: bold; background: none; border: none; outline: none; }
+        .nav-btn.active { color: #0284c7; }
+        .badge { font-size: 9px; padding: 2px 8px; border-radius: 99px; font-weight: 900; text-transform: uppercase; }
+        @keyframes pulse-sync { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        .syncing { animation: pulse-sync 1s infinite; }
     </style>
 </head>
-<body class="text-slate-800 pb-24">
-    <div class="bg-animated"></div>
-
-    <!-- 驗證介面 -->
-    <div id="authOverlay">
-        <div id="authCard" class="glass-card p-10 rounded-[40px] w-[90%] max-w-sm text-center border-2 border-sky-100 shadow-2xl">
-            <div class="bg-sky-600 text-white w-20 h-20 rounded-3xl flex items-center justify-center text-3xl mx-auto mb-8 shadow-xl shadow-sky-200">
+<body class="pb-28">
+    <!-- 驗證牆 -->
+    <div id="authGuard" class="fixed inset-0 z-[100] bg-slate-50 flex items-center justify-center px-6 transition-opacity duration-400">
+        <div class="w-full max-w-sm glass-card p-10 rounded-[40px] shadow-2xl text-center border-none">
+            <div class="w-20 h-20 bg-sky-600 text-white rounded-3xl flex items-center justify-center text-3xl mx-auto mb-8 shadow-xl shadow-sky-200">
                 <i class="fas fa-fingerprint"></i>
             </div>
-            <h2 class="text-2xl font-black text-slate-800 mb-2">身分認證</h2>
+            <h2 class="text-2xl font-black mb-2">身分認證</h2>
             <p class="text-slate-400 text-sm mb-8">請輸入課程密碼進入</p>
-            <input type="password" id="passwordInput" placeholder="••••••••" class="w-full px-4 py-4 rounded-2xl bg-slate-100 border-none focus:ring-4 focus:ring-sky-500/20 outline-none mb-6 text-center text-xl tracking-[0.5em]">
-            <button id="verifyBtn" class="w-full py-4 bg-sky-600 text-white rounded-2xl font-black text-lg shadow-xl shadow-sky-200 active:scale-95 transition-all">開啟學習導航</button>
+            <input type="password" id="pwInput" placeholder="••••••••" class="w-full p-5 rounded-2xl bg-slate-100 border-none text-center text-2xl tracking-[0.3em] mb-6 outline-sky-500">
+            <button onclick="checkPw()" class="w-full py-5 bg-sky-600 text-white rounded-2xl font-black text-lg shadow-xl shadow-sky-100 active:scale-95 transition-all">開啟學習導航</button>
         </div>
     </div>
 
-    <!-- 主內容區 -->
-    <div id="appContainer" class="hidden">
-        <header class="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-slate-100">
-            <div class="px-6 py-4 flex justify-between items-center">
-                <div>
-                    <h1 class="text-xl font-black text-sky-600 tracking-tight">理化雲端導航</h1>
-                    <div class="flex items-center gap-1.5 mt-0.5">
-                        <div id="statusDot" class="w-2 h-2 rounded-full bg-slate-300"></div>
-                        <span id="syncStatus" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">初始化中</span>
-                    </div>
-                </div>
-                <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-400">
-                    <i class="fas fa-user-circle text-xl"></i>
+    <!-- 主應用 -->
+    <div id="app" class="hidden">
+        <header class="sticky top-0 bg-white/90 backdrop-blur-lg border-b px-6 py-5 flex justify-between items-center z-40">
+            <div>
+                <h1 class="text-xl font-black text-slate-800 tracking-tight">理化雲端導航</h1>
+                <div class="flex items-center gap-2 mt-1">
+                    <span id="syncIndicator" class="w-2 h-2 rounded-full bg-slate-300"></span>
+                    <span id="syncText" class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">初始化中</span>
                 </div>
             </div>
+            <div id="userBadge" class="px-4 py-1.5 bg-slate-100 rounded-full text-[10px] font-black text-slate-500 shadow-sm border border-slate-200">載入 ID 中...</div>
         </header>
 
-        <main class="px-5 py-6">
-            <!-- 手機版工具快速連結 -->
-            <div class="flex gap-3 mb-8 overflow-x-auto no-scrollbar pb-2">
-                <a href="https://wayin.ai/zh-tw/tools/video-summarizer/" target="_blank" class="glass-card flex items-center gap-3 px-4 py-3 rounded-2xl shrink-0">
-                    <i class="fas fa-bolt text-indigo-500"></i>
-                    <span class="text-xs font-bold text-slate-600">AI 摘要</span>
-                </a>
-                <a href="https://www.easemate.ai/" target="_blank" class="glass-card flex items-center gap-3 px-4 py-3 rounded-2xl shrink-0">
-                    <i class="fas fa-brain text-purple-500"></i>
-                    <span class="text-xs font-bold text-slate-600">AI 筆記</span>
-                </a>
+        <main class="p-6">
+            <div class="mb-8">
+                <div class="relative">
+                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-300"></i>
+                    <input type="text" id="searchInput" oninput="render()" placeholder="搜尋關鍵字 (例如: 莫耳, 浮力, 壓力)..." class="w-full pl-12 pr-4 py-4 rounded-2xl bg-white border border-slate-200 outline-sky-500 shadow-sm font-medium">
+                </div>
             </div>
 
-            <div id="mainContent" class="space-y-10">
-                <!-- 內容由 JS 生成 -->
-            </div>
+            <div id="contentList" class="space-y-12"></div>
         </main>
 
-        <!-- 底部行動導航欄 -->
         <nav class="bottom-nav">
-            <button onclick="scrollToSection('Chen-Section')" class="nav-item active" id="nav-chen">
-                <i class="fas fa-atom"></i>
-                <span>陳詮專區</span>
-            </button>
-            <button onclick="scrollToSection('Liu-Section')" class="nav-item" id="nav-liu">
-                <i class="fas fa-vial"></i>
-                <span>劉川楓專區</span>
-            </button>
-            <button onclick="focusSearch()" class="nav-item">
-                <i class="fas fa-search"></i>
-                <span>課程搜尋</span>
-            </button>
+            <button onclick="scrollToT('陳詮')" class="nav-btn active" id="navChen"><i class="fas fa-graduation-cap text-lg mb-1"></i><span>陳詮專區</span></button>
+            <button onclick="scrollToT('劉川楓')" class="nav-btn" id="navLiu"><i class="fas fa-flask text-lg mb-1"></i><span>劉川楓專區</span></button>
+            <button onclick="window.scrollTo({top:0, behavior:'smooth'})" class="nav-btn"><i class="fas fa-chevron-up text-lg mb-1"></i><span>回頂部</span></button>
         </nav>
     </div>
 
-    <!-- 搜尋浮層 -->
-    <div id="searchOverlay" class="fixed inset-0 bg-white z-[150] hidden px-6 py-12">
-        <div class="flex items-center gap-4 mb-8">
-            <button onclick="closeSearch()" class="text-slate-400 text-xl"><i class="fas fa-chevron-left"></i></button>
-            <input type="text" id="mobileSearchInput" placeholder="輸入關鍵字搜尋..." class="flex-1 text-lg font-bold outline-none border-b-2 border-sky-500 pb-2">
-        </div>
-        <div id="searchResults" class="space-y-4"></div>
-    </div>
-
-    <script type="module">
-        const RAW_PWD = "studyscience";
+    <script>
+        const SUPABASE_URL = 'https://piovrdifroesqwozwtnm.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBpb3ZyZGlmcm9lc3F3b3p3dG5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1OTE3NTgsImV4cCI6MjA5MjE2Nzc1OH0.7lmWsr8gd99rNXoZNdSuoVffiny-Z5Zt7jEhZPRXGf8';
+        const ACCESS_PW = "study";
         
-        // 介面與功能初始化
-        const initUI = () => {
-            const input = document.getElementById('passwordInput').value.trim();
-            if (input === RAW_PWD) {
-                sessionStorage.setItem('is_authed', 'true');
-                document.getElementById('authOverlay').remove();
-                document.getElementById('appContainer').classList.remove('hidden');
-                initApp();
-            } else if (input !== "") {
-                alert('密碼不正確');
-            }
-        };
+        let client;
+        let userId = localStorage.getItem('sci_user_v2') || `STUDENT-${Math.floor(Math.random()*9000)+1000}`;
+        let progress = JSON.parse(localStorage.getItem('sci_progress_v2') || '{}');
 
-        document.getElementById('verifyBtn').onclick = initUI;
-        if (sessionStorage.getItem('is_authed') === 'true') {
-            document.getElementById('authOverlay').remove();
-            document.getElementById('appContainer').classList.remove('hidden');
-            window.onload = initApp;
-        }
+        try {
+            client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+            localStorage.setItem('sci_user_v2', userId);
+            document.getElementById('userBadge').innerText = `ID: ${userId}`;
+        } catch(e) { console.error("Database Init Failed"); }
 
-        // --- Supabase 同步 ---
-        const supabaseUrl = 'https://piovrdifroesqwozwtnm.supabase.co';
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBpb3ZyZGlmcm9lc3F3b3p3dG5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1OTE3NTgsImV4cCI6MjA5MjE2Nzc1OH0.7lmWsr8gd99rNXoZNdSuoVffiny-Z5Zt7jEhZPRXGf8';
-        const { createClient } = supabase;
-        const db = createClient(supabaseUrl, supabaseKey);
+        // 完整影片清單整合 (劉川楓 + 陳詮)
+        const courses = [
+            // --- 劉川楓老師 (001.pdf 全部內容) ---
+            { teacher: "劉川楓", cat: "B3-C1", type: "觀念", title: "1-1 實驗安全與設計", url: "https://youtu.be/kQn2Nm0hrCM" },
+            { teacher: "劉川楓", cat: "B3-C1", type: "觀念", title: "1-2 長度與體積的測量", url: "https://youtu.be/8_2rn5JM3g4" },
+            { teacher: "劉川楓", cat: "B3-C1", type: "觀念", title: "1-3 質量的測量", url: "https://youtu.be/Sfot4hVt-js" },
+            { teacher: "劉川楓", cat: "B3-C1", type: "觀念", title: "1-4 物質的密度", url: "https://youtu.be/4IX46s7JFk" },
+            { teacher: "劉川楓", cat: "B3-C1", type: "考題", title: "B3C1 歷屆會考試題解析", url: "https://youtu.be/1axQuntMKwk" },
+            { teacher: "劉川楓", cat: "B3-C2", type: "觀念", title: "2-1 認識物質", url: "https://youtu.be/aEEd5MhLTD0" },
+            { teacher: "劉川楓", cat: "B3-C2", type: "觀念", title: "2-2 水溶液及濃度", url: "https://youtu.be/CKNPX091-91" },
+            { teacher: "劉川楓", cat: "B3-C2", type: "觀念", title: "2-3 空氣", url: "https://youtu.be/ujNU9HoXCT0" },
+            { teacher: "劉川楓", cat: "B3-C2", type: "考題", title: "B3C2 歷屆會考試題解析", url: "https://youtu.be/VLEKZTyRRU4" },
+            { teacher: "劉川楓", cat: "B3-C3", type: "觀念", title: "3-1 波的傳播", url: "https://youtu.be/JAxyGBJsLgk" },
+            { teacher: "劉川楓", cat: "B3-C3", type: "觀念", title: "3-2 聲音的傳播", url: "https://youtu.be/tkVgG1MTOq4" },
+            { teacher: "劉川楓", cat: "B3-C3", type: "觀念", title: "3-3 聲波反射與超聲波", url: "https://youtu.be/Wi8dzz8gus8" },
+            { teacher: "劉川楓", cat: "B3-C3", type: "觀念", title: "3-4 多變的聲音", url: "https://youtu.be/TJ2VwVVt-Z8" },
+            { teacher: "劉川楓", cat: "B3-C3", type: "考題", title: "B3C3 歷屆會考考題解析", url: "https://youtu.be/YD1hRwiQ_uI" },
+            { teacher: "劉川楓", cat: "B3-C4", type: "觀念", title: "4-1 光的直進", url: "https://youtu.be/jvIys5anwVE" },
+            { teacher: "劉川楓", cat: "B3-C4", type: "觀念", title: "4-2 光的反射與面鏡", url: "https://youtu.be/zu5hKsIMu60" },
+            { teacher: "劉川楓", cat: "B3-C4", type: "觀念", title: "4-3 光的折射原理", url: "https://youtu.be/8hC094znZxM" },
+            { teacher: "劉川楓", cat: "B3-C4", type: "觀念", title: "4-4 透鏡的折射", url: "https://youtu.be/KgBH4eGxY4Y" },
+            { teacher: "劉川楓", cat: "B3-C4", type: "觀念", title: "4-5 光學儀器", url: "https://youtu.be/fEZIpWsyZS0" },
+            { teacher: "劉川楓", cat: "B3-C4", type: "觀念", title: "4-6 色光與顏色", url: "https://youtu.be/Cq2TzGhJH14" },
+            { teacher: "劉川楓", cat: "B3-C4", type: "考題", title: "B3C4 歷屆會考考題解析", url: "https://youtu.be/5Ri-y0-ASIA" },
+            { teacher: "劉川楓", cat: "B3-C5", type: "觀念", title: "5-1 溫度與溫度計", url: "https://youtu.be/iiX1le7kAag" },
+            { teacher: "劉川楓", cat: "B3-C5", type: "觀念", title: "5-2 熱量與比熱", url: "https://youtu.be/Nb9n2PExZQk" },
+            { teacher: "劉川楓", cat: "B3-C5", type: "觀念", title: "5-3 熱的傳播方式", url: "https://youtu.be/uRQP2sh2drc" },
+            { teacher: "劉川楓", cat: "B3-C5", type: "觀念", title: "5-4 熱對物質的影響", url: "https://youtu.be/UfDhzKoG4x8" },
+            { teacher: "劉川楓", cat: "B3-C5", type: "考題", title: "B3C5 歷屆會考考題解析", url: "https://youtu.be/dayK2dDjm_1" },
+            { teacher: "劉川楓", cat: "B3-C6", type: "觀念", title: "6-1 元素與化合物", url: "https://youtu.be/cmhBEsOYugM" },
+            { teacher: "劉川楓", cat: "B3-C6", type: "觀念", title: "6-2 認識元素", url: "https://youtu.be/kBiXVqQnevc" },
+            { teacher: "劉川楓", cat: "B3-C6", type: "觀念", title: "6-3 元素週期表", url: "https://youtu.be/X74vRI3w_bM" },
+            { teacher: "劉川楓", cat: "B3-C6", type: "觀念", title: "6-4 原子的結構", url: "https://youtu.be/ykD8LCpHOP4" },
+            { teacher: "劉川楓", cat: "B3-C6", type: "觀念", title: "6-5 分子與化學式", url: "https://youtu.be/GUKi_Gwec5w" },
+            { teacher: "劉川楓", cat: "B3-C6", type: "觀念", title: "6-6 物質變化的粒子觀點", url: "https://youtu.be/1lkLfobZxS8" },
+            { teacher: "劉川楓", cat: "B3-C6", type: "考題", title: "B3C6 歷屆會考考題解析", url: "https://youtu.be/H1sF3TWaMRw" },
+            { teacher: "劉川楓", cat: "B4-C1", type: "觀念", title: "1-1 化學變化與質量守恆", url: "https://youtu.be/E6TeYHxIPIw" },
+            { teacher: "劉川楓", cat: "B4-C1", type: "觀念", title: "1-2 原子量與莫耳數", url: "https://youtu.be/JmRan81w-Jg" },
+            { teacher: "劉川楓", cat: "B4-C1", type: "觀念", title: "1-3 化學反應方程式", url: "https://youtu.be/BZni-COuhoM" },
+            { teacher: "劉川楓", cat: "B4-C1", type: "觀念", title: "1-4 化學計量", url: "https://youtu.be/bWjNT3KsCww" },
+            { teacher: "劉川楓", cat: "B4-C1", type: "考題", title: "B4C1 歷屆會考考題解析", url: "https://youtu.be/gR8c9uTxD-1" },
+            { teacher: "劉川楓", cat: "B4-C2", type: "觀念", title: "2-1 氧化反應", url: "https://youtu.be/Oera419Rfd4" },
+            { teacher: "劉川楓", cat: "B4-C2", type: "觀念", title: "2-2 氧化還原與其應用", url: "https://youtu.be/6DHT4mo3L88" },
+            { teacher: "劉川楓", cat: "B4-C2", type: "考題", title: "B4C2 歷屆會考考題解析", url: "https://youtu.be/VGHG0gh7kNU" },
+            { teacher: "劉川楓", cat: "B4-C3", type: "觀念", title: "3-1 認識電解質", url: "https://youtu.be/S-g81LsVVYU" },
+            { teacher: "劉川楓", cat: "B4-C3", type: "觀念", title: "3-2 常見的酸與鹼", url: "https://youtu.be/zYJzqQADEbs" },
+            { teacher: "劉川楓", cat: "B4-C3", type: "觀念", title: "3-3 酸鹼的濃度", url: "https://youtu.be/IEtEy-Aik6Y" },
+            { teacher: "劉川楓", cat: "B4-C3", type: "觀念", title: "3-4 酸鹼中和", url: "https://youtu.be/BaIo94yk1G8" },
+            { teacher: "劉川楓", cat: "B4-C3", type: "考題", title: "B4C3 歷屆會考考題解析", url: "https://youtu.be/zT5c0Q_rWB0" },
+            { teacher: "劉川楓", cat: "B4-C4", type: "觀念", title: "4-1 濃度表面積與反應速率", url: "https://youtu.be/EnAiWumur00" },
+            { teacher: "劉川楓", cat: "B4-C4", type: "觀念", title: "4-2 溫度對反應速率的影響", url: "https://youtu.be/TnMJ7r6JhIk" },
+            { teacher: "劉川楓", cat: "B4-C4", type: "觀念", title: "4-3 催化劑對反應速率的影響", url: "https://youtu.be/7pnXzLpX5U" },
+            { teacher: "劉川楓", cat: "B4-C4", type: "觀念", title: "4-4 可逆反應與化學平衡", url: "https://youtu.be/c-i4LX_fqC0" },
+            { teacher: "劉川楓", cat: "B4-C4", type: "考題", title: "B4C4 歷屆會考考題解析", url: "https://youtu.be/UbFKvQk1tks" },
+            { teacher: "劉川楓", cat: "B4-C5", type: "觀念", title: "5-1 有機化合物", url: "https://youtu.be/oLBZYFmkvOk" },
+            { teacher: "劉川楓", cat: "B4-C5", type: "觀念", title: "5-2 常見的有機化合物", url: "https://youtu.be/Qn6yVNx9DC0" },
+            { teacher: "劉川楓", cat: "B4-C5", type: "觀念", title: "5-3 常用的清潔劑", url: "https://youtu.be/avqbZ7uQ5dE" },
+            { teacher: "劉川楓", cat: "B4-C5", type: "觀念", title: "5-4 有機聚合物與衣料", url: "https://youtu.be/6LTDGxXaftY" },
+            { teacher: "劉川楓", cat: "B4-C5", type: "考題", title: "B4C5 歷屆會考考題解析", url: "https://youtu.be/JtAD3If9204" },
+            { teacher: "劉川楓", cat: "B4-C6", type: "觀念", title: "6-1 力與平衡", url: "https://youtu.be/TgjgnbJ4Vk" },
+            { teacher: "劉川楓", cat: "B4-C6", type: "觀念", title: "6-2 摩擦力", url: "https://youtu.be/nrEp4zwM3PM" },
+            { teacher: "劉川楓", cat: "B4-C6", type: "觀念", title: "6-3 固體壓力", url: "https://youtu.be/2Cco2bhMN6A" },
+            { teacher: "劉川楓", cat: "B4-C6", type: "觀念", title: "6-4 液體壓力", url: "https://youtu.be/kCO3npa78R0" },
+            { teacher: "劉川楓", cat: "B4-C6", type: "觀念", title: "6-5 大氣壓力", url: "https://youtu.be/AAJmWBrICW4" },
+            { teacher: "劉川楓", cat: "B4-C6", type: "觀念", title: "6-6 水的浮力", url: "https://youtu.be/hYVHIuiphG4" },
+            { teacher: "劉川楓", cat: "B4-C6", type: "考題", title: "B4C6 歷屆會考考題解析", url: "https://youtu.be/sR4Y6IIHI-U" },
 
-        const userId = localStorage.getItem('sci_uid') || 'MOB_' + Math.floor(Math.random()*90000 + 10000);
-        localStorage.setItem('sci_uid', userId);
-        let completedMap = JSON.parse(localStorage.getItem('sci_done') || '{}');
-
-        const videoData = [
-            { teacher: "陳詮", cat: "B4-C1", type: "觀念", title: "化學反應的特徵", url: "https://youtu.be/toMOr4DSKA" },
-            { teacher: "陳詮", cat: "B4-C1", type: "例題", title: "化學反應特徵 例題", url: "https://youtu.be/QjzEYB8QIPM" },
-            { teacher: "陳詮", cat: "B4-C1", type: "例題", title: "質量守恆 例題", url: "https://youtu.be/iX4ZyM9199Q" },
+            // --- 陳詮老師 (講義清單全部內容) ---
+            { teacher: "陳詮", cat: "B4-C1", type: "觀念", title: "化學反應的特徵 (含例題)", url: "https://youtu.be/toMOr4DSKA" },
+            { teacher: "陳詮", cat: "B4-C1", type: "例題", title: "化學反應特徵 例題練習", url: "https://youtu.be/QjzEYB8QIPM" },
+            { teacher: "陳詮", cat: "B4-C1", type: "例題", title: "質量守恆 例題解析", url: "https://youtu.be/iX4ZyM9199Q" },
             { teacher: "陳詮", cat: "B4-C1", type: "觀念", title: "化學反應表示法及平衡", url: "https://youtu.be/98xtXVtJzKM" },
-            { teacher: "陳詮", cat: "B4-C1", type: "例題", title: "反應係數平衡 例題", url: "https://youtu.be/3hjhTLv6yJ0" },
-            { teacher: "陳詮", cat: "B4-C1", type: "觀念", title: "原子量與莫耳數", url: "https://youtu.be/DbERFgkt7X4" },
-            { teacher: "劉川楓", cat: "B3-C1", type: "觀念", title: "物質的密度", url: "https://youtu.be/4IX46s7JFk" },
-            { teacher: "劉川楓", cat: "B3-C1", type: "考題", title: "歷屆會考試題解析", url: "https://youtu.be/1axQuntMKwk" },
-            { teacher: "劉川楓", cat: "B4-C1", type: "觀念", title: "原子量與莫耳數", url: "https://youtu.be/JmRan81w-Jg" }
+            { teacher: "陳詮", cat: "B4-C1", type: "觀念", title: "反應係數平衡 例題", url: "https://youtu.be/Q5Fg7ugmWbA" },
+            { teacher: "陳詮", cat: "B4-C1", type: "觀念", title: "原子量與莫耳數", url: "https://youtu.be/3hjhTLv6yJ0" },
+            { teacher: "陳詮", cat: "B4-C1", type: "例題", title: "莫耳數計算例題", url: "https://youtu.be/DbERFgkt7X4" },
+            { teacher: "陳詮", cat: "B4-C2", type: "觀念", title: "氧化還原 觀念大集合", url: "https://youtu.be/Po67Nze7pfY" },
+            { teacher: "陳詮", cat: "B4-C2", type: "觀念", title: "元素的燃燒與活性", url: "https://youtu.be/SobXMJ7UofU" },
+            { teacher: "陳詮", cat: "B4-C2", type: "觀念", title: "氧化還原反應流程", url: "https://youtu.be/xdbabx5jaPs" },
+            { teacher: "陳詮", cat: "B4-C3", type: "觀念", title: "電解質 觀念大集合", url: "https://youtu.be/taV_wdGLZ90" },
+            { teacher: "陳詮", cat: "B4-C3", type: "觀念", title: "檢測電解質水溶液", url: "https://youtu.be/PSL2BLuhyQ" },
+            { teacher: "陳詮", cat: "B4-C3", type: "觀念", title: "離子與根離子", url: "https://youtu.be/rdEXI1sTZOA" },
+            { teacher: "陳詮", cat: "B4-C3", type: "觀念", title: "酸鹼觀念大集合", url: "https://youtu.be/Gpq_CTIMegE" },
+            { teacher: "陳詮", cat: "B4-C3", type: "觀念", title: "電離說與強弱電解質", url: "https://youtu.be/6s40jx5JffQ" },
+            { teacher: "陳詮", cat: "B4-C3", type: "例題", title: "主題一例題全 (酸鹼鹽)", url: "https://youtu.be/HovwwzNVaDO" },
+            { teacher: "陳詮", cat: "B4-C3", type: "觀念", title: "常見的酸與鹼", url: "https://youtu.be/iJcZUdMj0Zg" },
+            { teacher: "陳詮", cat: "B4-C3", type: "觀念", title: "體積莫耳濃度 (含例題)", url: "https://youtu.be/BG5jpGV4DuA" },
+            { teacher: "陳詮", cat: "B4-C3", type: "觀念", title: "溶液配置與稀釋混合", url: "https://youtu.be/TT3SHveZsOU" },
+            { teacher: "陳詮", cat: "B4-C3", type: "觀念", title: "水溶液離子濃度與酸鹼性", url: "https://youtu.be/XIMt3Q3Ffil" },
+            { teacher: "陳詮", cat: "B4-C3", type: "觀念", title: "酸鹼指示劑", url: "https://youtu.be/B6RLMngiCoc" },
+            { teacher: "陳詮", cat: "B4-C3", type: "例題", title: "主題三例題全 (酸鹼性)", url: "https://youtu.be/dIviGRnizK4" },
+            { teacher: "陳詮", cat: "B4-C3", type: "觀念", title: "酸雨", url: "https://youtu.be/t5G062k6QRU" },
+            { teacher: "陳詮", cat: "B4-C3", type: "觀念", title: "酸鹼中和 (含例題)", url: "https://youtu.be/sceTWmRUn9k" },
+            { teacher: "陳詮", cat: "B4-C3", type: "觀念", title: "鹽類", url: "https://youtu.be/3aDXxAIFI_A" },
+            { teacher: "陳詮", cat: "B4-C4", type: "觀念", title: "反應速率 觀念大集合", url: "https://youtu.be/StnD2kZcIF0" },
+            { teacher: "陳詮", cat: "B4-C4", type: "觀念", title: "反應速率定義", url: "https://youtu.be/Bxgb7U5sY_8" },
+            { teacher: "陳詮", cat: "B4-C4", type: "觀念", title: "影響因子：活性、濃度、面積", url: "https://youtu.be/XAgU_UU8Lhk" },
+            { teacher: "陳詮", cat: "B4-C4", type: "觀念", title: "影響因子：溫度、催化劑", url: "https://youtu.be/OUf45plpBI" },
+            { teacher: "陳詮", cat: "B4-C4", type: "例題", title: "反應速率例題解析", url: "https://youtu.be/pcROX7IGNn4" },
+            { teacher: "陳詮", cat: "B4-C4", type: "觀念", title: "可逆反應與動態平衡", url: "https://youtu.be/ER5450gxads" },
+            { teacher: "陳詮", cat: "B4-C4", type: "觀念", title: "物理與化學變化可逆實例", url: "https://youtu.be/s_DSO8RxMno" },
+            { teacher: "陳詮", cat: "B4-C4", type: "觀念", title: "影響動態平衡的因素", url: "https://youtu.be/wYRx3zhj7gU" },
+            { teacher: "陳詮", cat: "B4-C5", type: "觀念", title: "有機化合物定義與檢測", url: "https://youtu.be/Z9piArlF2vk" },
+            { teacher: "陳詮", cat: "B4-C5", type: "觀念", title: "有機化合物分類與碳氫", url: "https://youtu.be/HAUf3yWr2XE" },
+            { teacher: "陳詮", cat: "B4-C5", type: "觀念", title: "肥皂與去污原理", url: "https://youtu.be/ki3Re-q97dI" },
+            { teacher: "陳詮", cat: "B4-C5", type: "觀念", title: "有機聚合物", url: "https://youtu.be/TI9uVIZTne8" },
+            { teacher: "陳詮", cat: "B4-C5", type: "觀念", title: "衣料纖維", url: "https://youtu.be/RB2R-panIUo" },
+            { teacher: "陳詮", cat: "B4-C6", type: "觀念", title: "力的基本性質 觀念集合", url: "https://youtu.be/FKJgn7_HIQ" },
+            { teacher: "陳詮", cat: "B4-C6", type: "觀念", title: "力的合成與分解", url: "https://youtu.be/MgNgJvC9cCI" },
+            { teacher: "陳詮", cat: "B4-C6", type: "觀念", title: "虎克定律", url: "https://youtu.be/Jpmr5JMJybo" },
+            { teacher: "陳詮", cat: "B4-C6", type: "例題", title: "主題一 例題解析", url: "https://youtu.be/aAEUIqFObeI" },
+            { teacher: "陳詮", cat: "B4-C6", type: "觀念", title: "摩擦力的種類與性質", url: "https://youtu.be/N7f2_6N-yul" },
+            { teacher: "陳詮", cat: "B4-C6", type: "觀念", title: "影響摩擦力的因素與應用", url: "https://youtu.be/u_ygaIOg2Tw" },
+            { teacher: "陳詮", cat: "B4-C6", type: "例題", title: "摩擦力例題解析", url: "https://youtu.be/xMs4dLwuFlw" },
+            { teacher: "陳詮", cat: "B4-C6", type: "觀念", title: "壓力的性質 (含例題)", url: "https://youtu.be/smg8j_xdsEA" },
+            { teacher: "陳詮", cat: "B4-C6", type: "觀念", title: "液體壓力", url: "https://youtu.be/FdR0XChxO10" },
+            { teacher: "陳詮", cat: "B4-C6", type: "例題", title: "液體壓力例題解析", url: "https://youtu.be/9TotRuWkdcg" },
+            { teacher: "陳詮", cat: "B4-C6", type: "觀念", title: "連通管原理 (含例題)", url: "https://youtu.be/H0K1-RPdUDw" },
+            { teacher: "陳詮", cat: "B4-C6", type: "觀念", title: "帕斯卡原理 (含例題)", url: "https://youtu.be/FynIyYe29mA" },
+            { teacher: "陳詮", cat: "B4-C6", type: "觀念", title: "大氣壓力觀念", url: "https://youtu.be/EEkbL8QZhdc" },
+            { teacher: "陳詮", cat: "B4-C6", type: "例題", title: "大氣壓力例題解析", url: "https://youtu.be/pBiWDRsYdHk" },
+            { teacher: "陳詮", cat: "B4-C6", type: "觀念", title: "浮力的來源與測量 (含例題)", url: "https://youtu.be/tl9apJ0Fm70" },
+            { teacher: "陳詮", cat: "B4-C6", type: "觀念", title: "浮體與沉體關係式", url: "https://youtu.be/FV33NgTMpcE" },
+            { teacher: "陳詮", cat: "B4-C6", type: "觀念", title: "浮體與沉體應用情境", url: "https://youtu.be/Bv1IQXGCYVA" },
+            { teacher: "陳詮", cat: "B4-C6", type: "例題", title: "浮力例題 Part1", url: "https://youtu.be/3rVBxBZk2Uw" },
+            { teacher: "陳詮", cat: "B4-C6", type: "例題", title: "浮力例題 Part2", url: "https://youtu.be/vizeTeg1014" },
+            { teacher: "陳詮", cat: "B4-C6", type: "觀念", title: "觀念大集合 (力與壓力)", url: "https://youtu.be/fwu4PSkxfXg" }
         ];
 
-        window.render = (filter = "", targetId = "mainContent") => {
-            const container = document.getElementById(targetId);
-            container.innerHTML = "";
-            
-            const teacherGroups = ["陳詮", "劉川楓"];
-            teacherGroups.forEach(teacher => {
-                const filtered = videoData.filter(v => v.teacher === teacher && v.title.includes(filter));
-                if(filtered.length === 0) return;
-
-                const section = document.createElement('div');
-                section.id = (teacher === '陳詮' ? 'Chen-Section' : 'Liu-Section');
-                section.className = "space-y-4";
-                section.innerHTML = `
-                    <h3 class="text-lg font-black text-slate-800 flex items-center justify-between">
-                        <span>${teacher} 老師</span>
-                        <span class="text-[10px] bg-slate-200 px-2 py-0.5 rounded-md text-slate-500">${filtered.length} 堂課</span>
-                    </h3>
-                    <div class="space-y-3"></div>
-                `;
-                const grid = section.querySelector('.space-y-3');
-                
-                filtered.forEach(v => {
-                    const isDone = completedMap[v.url];
-                    const card = document.createElement('div');
-                    card.className = `video-card glass-card flex items-center gap-4 ${isDone ? 'completed' : ''}`;
-                    card.innerHTML = `
-                        <input type="checkbox" ${isDone ? 'checked' : ''} class="custom-checkbox shrink-0">
-                        <div class="flex-1 min-w-0">
-                            <div class="flex items-center gap-2 mb-1">
-                                <span class="text-[9px] font-black px-1.5 py-0.5 rounded bg-white text-slate-400 border border-slate-100 uppercase">${v.cat}</span>
-                                <span class="text-[9px] font-black px-1.5 py-0.5 rounded bg-sky-50 text-sky-500 uppercase">${v.type}</span>
-                            </div>
-                            <h4 class="video-title font-bold text-slate-700 text-sm truncate">${v.title}</h4>
-                        </div>
-                        <a href="${v.url}" target="_blank" class="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-500 shrink-0">
-                            <i class="fab fa-youtube"></i>
-                        </a>
-                    `;
-                    card.querySelector('input').onchange = (e) => updateProgress(v.url, e.target.checked);
-                    grid.appendChild(card);
-                });
-                container.appendChild(section);
-            });
-        };
-
-        async function updateProgress(url, checked) {
-            if (checked) {
-                completedMap[url] = true;
-                confetti({ particleCount: 30, spread: 50, origin: { y: 0.9 } });
+        function checkPw() {
+            if(document.getElementById('pwInput').value.trim() === ACCESS_PW) {
+                document.getElementById('authGuard').classList.add('opacity-0');
+                setTimeout(() => {
+                    document.getElementById('authGuard').remove();
+                    document.getElementById('app').classList.remove('hidden');
+                    loadCloudData();
+                    render();
+                }, 400);
             } else {
-                delete completedMap[url];
+                const btn = document.querySelector('button');
+                btn.innerText = "密碼錯誤！";
+                btn.classList.add('bg-red-500');
+                setTimeout(() => {
+                    btn.innerText = "開啟學習導航";
+                    btn.classList.remove('bg-red-500');
+                }, 2000);
             }
-            localStorage.setItem('sci_done', JSON.stringify(completedMap));
-            
-            const dot = document.getElementById('statusDot');
-            const statusText = document.getElementById('syncStatus');
-            dot.className = "w-2 h-2 rounded-full bg-amber-400 animate-pulse";
-            statusText.innerText = "同步中";
-
-            const { error } = await db.from('science_tracker').upsert({ user_id: userId, data: completedMap }, { onConflict: 'user_id' });
-            
-            if (error) {
-                dot.className = "w-2 h-2 rounded-full bg-red-500";
-                statusText.innerText = "同步失敗";
-            } else {
-                dot.className = "w-2 h-2 rounded-full bg-green-500";
-                statusText.innerText = "已連線";
-            }
-            render();
         }
 
-        async function initApp() {
-            render();
+        async function loadCloudData() {
+            const ind = document.getElementById('syncIndicator');
+            const txt = document.getElementById('syncText');
             try {
-                const { data } = await db.from('science_tracker').select('data').eq('user_id', userId).single();
+                ind.classList.add('syncing');
+                const { data, error } = await client.from('science_tracker').select('data').eq('user_id', userId).maybeSingle();
+                if (error) throw error;
                 if (data && data.data) {
-                    completedMap = data.data;
-                    localStorage.setItem('sci_done', JSON.stringify(completedMap));
+                    progress = data.data;
+                    localStorage.setItem('sci_progress_v2', JSON.stringify(progress));
                     render();
                 }
-                document.getElementById('statusDot').className = "w-2 h-2 rounded-full bg-green-500";
-                document.getElementById('syncStatus').innerText = "已連線";
-            } catch (e) {
-                document.getElementById('syncStatus').innerText = "離線模式";
+                ind.className = "w-2 h-2 rounded-full bg-green-500";
+                txt.innerText = "雲端同步中";
+            } catch(e) {
+                ind.className = "w-2 h-2 rounded-full bg-amber-500";
+                txt.innerText = "本地模式";
+            } finally {
+                ind.classList.remove('syncing');
             }
         }
 
-        // 手機導航邏輯
-        window.scrollToSection = (id) => {
-            const el = document.getElementById(id);
-            if(el) {
-                const yOffset = -100; 
-                const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
-                window.scrollTo({top: y, behavior: 'smooth'});
-            }
+        async function toggleDone(url) {
+            const ind = document.getElementById('syncIndicator');
+            const txt = document.getElementById('syncText');
             
-            // 更新導航樣式
-            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-            if(id === 'Chen-Section') document.getElementById('nav-chen').classList.add('active');
-            if(id === 'Liu-Section') document.getElementById('nav-liu').classList.add('active');
-        };
+            if (progress[url]) delete progress[url];
+            else {
+                progress[url] = true;
+                confetti({ particleCount: 30, spread: 50, origin: { y: 0.8 }, colors: ['#0284c7'] });
+            }
+            localStorage.setItem('sci_progress_v2', JSON.stringify(progress));
+            render();
 
-        window.focusSearch = () => {
-            document.getElementById('searchOverlay').classList.remove('hidden');
-            document.getElementById('mobileSearchInput').focus();
-        };
+            try {
+                ind.classList.add('syncing');
+                await client.from('science_tracker').upsert({ user_id: userId, data: progress }, { onConflict: 'user_id' });
+                ind.className = "w-2 h-2 rounded-full bg-green-500";
+                txt.innerText = "已存至雲端";
+            } catch(e) {
+                ind.className = "w-2 h-2 rounded-full bg-red-500";
+                txt.innerText = "同步失敗";
+            } finally {
+                ind.classList.remove('syncing');
+            }
+        }
 
-        window.closeSearch = () => {
-            document.getElementById('searchOverlay').classList.add('hidden');
-        };
+        function render() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const container = document.getElementById('contentList');
+            container.innerHTML = "";
 
-        document.getElementById('mobileSearchInput').oninput = (e) => {
-            render(e.target.value, 'searchResults');
-        };
+            ["陳詮", "劉川楓"].forEach(t => {
+                const filtered = courses.filter(c => 
+                    c.teacher === t && 
+                    (c.title.toLowerCase().includes(query) || c.cat.toLowerCase().includes(query))
+                );
+                
+                if(filtered.length === 0 && query !== "") return;
+
+                const tSection = document.createElement('div');
+                tSection.id = `sec-${t}`;
+                tSection.innerHTML = `
+                    <div class="flex justify-between items-end mb-5">
+                        <h2 class="text-2xl font-black flex items-center gap-3">
+                            <span class="w-1.5 h-8 ${t === '陳詮' ? 'bg-sky-500' : 'bg-amber-500'} rounded-full"></span>
+                            ${t} 老師
+                        </h2>
+                        <span class="text-[10px] font-bold text-slate-400 bg-slate-100 px-3 py-1 rounded-full">${filtered.length} 部影片</span>
+                    </div>
+                `;
+                
+                const grid = document.createElement('div');
+                grid.className = "grid grid-cols-1 gap-4";
+                
+                filtered.forEach(c => {
+                    const isDone = progress[c.url];
+                    const card = document.createElement('div');
+                    card.className = `video-card glass-card p-5 flex items-center gap-4 ${isDone ? 'completed shadow-none border-green-100' : 'shadow-sm'}`;
+                    card.onclick = () => toggleDone(c.url);
+                    card.innerHTML = `
+                        <input type="checkbox" class="custom-checkbox" ${isDone ? 'checked' : ''} onclick="event.stopPropagation()">
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="badge ${isDone ? 'bg-green-100 text-green-600' : 'bg-sky-50 text-sky-500'}">${c.type}</span>
+                                <span class="text-[10px] font-black text-slate-300 tracking-tighter">${c.cat}</span>
+                            </div>
+                            <h3 class="title-text font-bold text-slate-700 text-sm truncate">${c.title}</h3>
+                        </div>
+                        <a href="${c.url}" target="_blank" onclick="event.stopPropagation()" class="w-11 h-11 rounded-2xl bg-red-50 flex items-center justify-center text-red-500 shadow-sm active:scale-90 transition-transform">
+                            <i class="fab fa-youtube text-lg"></i>
+                        </a>
+                    `;
+                    grid.appendChild(card);
+                });
+                tSection.appendChild(grid);
+                container.appendChild(tSection);
+            });
+        }
+
+        function scrollToT(t) {
+            const el = document.getElementById(`sec-${t}`);
+            if(el) {
+                const headerOffset = 100;
+                const elementPosition = el.getBoundingClientRect().top;
+                const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+                window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+                
+                document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+                const btnId = t === '陳詮' ? 'navChen' : 'navLiu';
+                const btn = document.getElementById(btnId);
+                if(btn) btn.classList.add('active');
+            }
+        }
     </script>
 </body>
 </html>
-
-```
