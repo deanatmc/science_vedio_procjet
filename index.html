@@ -3,254 +3,222 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title> --理化自學導航-- </title>
+    <title>理化自學導航 - Supabase 雲端版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <!-- 引入 Supabase SDK -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
-        
-        :root {
-            --padlet-gradient: linear-gradient(135deg, #ec4899 0%, #be185d 100%);
-        }
-
-        body {
-            font-family: 'Noto Sans TC', sans-serif;
-            background: #f0f2f5;
-            min-height: 100vh;
-            background-attachment: fixed;
-        }
-
-        .bg-animated {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(45deg, #e0e7ff, #f0f9ff, #fff7ed);
-            background-size: 400% 400%;
-            z-index: -1;
-            animation: gradientBG 15s ease infinite;
-        }
-
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-
-        .glass-card {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
-        }
-
-        .video-card {
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            overflow: hidden;
-            position: relative;
-        }
-
-        .video-card:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-        }
-
-        .completed {
-            background: rgba(220, 252, 231, 0.6) !important;
-            border-color: #4ade80 !important;
-        }
-
-        .completed .video-title {
-            color: #166534;
-            text-decoration: line-through;
-            opacity: 0.6;
-        }
-
-        .nav-btn {
-            transition: all 0.3s;
-        }
-
-        .nav-btn:hover {
-            transform: scale(1.05);
-            filter: brightness(1.1);
-        }
-
-        .reveal {
-            opacity: 0;
-            transform: translateY(20px);
-            transition: all 0.6s ease-out;
-        }
-        .reveal.active {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .padlet-btn {
-            background: var(--padlet-gradient);
-            box-shadow: 0 4px 15px rgba(236, 72, 153, 0.3);
-        }
-
+        :root { --accent-gradient: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%); }
+        body { font-family: 'Noto Sans TC', sans-serif; background: #f8fafc; min-height: 100vh; }
+        .bg-animated { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(120deg, #f0f9ff, #e0f2fe, #fdfcfb); background-size: 400% 400%; z-index: -1; animation: gradientBG 15s ease infinite; }
+        @keyframes gradientBG { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        .glass-card { background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.6); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03); }
+        .video-card { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .video-card:hover { transform: translateY(-5px); box-shadow: 0 15px 30px rgba(0, 0, 0, 0.08); border-color: #bae6fd; }
+        .completed { background: rgba(220, 252, 231, 0.7) !important; border-color: #4ade80 !important; }
+        .completed .video-title { color: #166534; text-decoration: line-through; opacity: 0.6; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body class="text-slate-800">
     <div class="bg-animated"></div>
 
-    <header class="bg-white/80 backdrop-blur-md text-indigo-900 shadow-sm sticky top-0 z-50 border-b border-indigo-100">
+    <header class="bg-white/90 backdrop-blur-lg border-b border-slate-200 sticky top-0 z-50">
         <div class="container mx-auto px-4 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
-            <h1 class="text-2xl font-black flex items-center gap-2">
-                <span class="bg-indigo-600 text-white p-2 rounded-lg"><i class="fas fa-bolt"></i></span>
-                理化自學 · 完整導航
-            </h1>
+            <div>
+                <h1 class="text-2xl font-black flex items-center gap-2 text-sky-600">
+                    <span class="bg-sky-600 text-white p-2 rounded-xl shadow-lg shadow-sky-200"><i class="fas fa-bolt"></i></span>
+                    理化雲端導航
+                </h1>
+                <p id="syncStatus" class="text-[11px] text-slate-400 mt-1 font-medium"><i class="fas fa-circle-notch fa-spin mr-1"></i>正在初始化連線...</p>
+            </div>
             <div class="flex items-center gap-3 w-full md:w-auto">
-                <div class="relative flex-1 md:w-80">
-                    <input type="text" id="searchBar" placeholder="搜尋章節或關鍵字..." 
-                           class="w-full px-6 py-2.5 rounded-full bg-slate-100/50 border-0 focus:ring-4 focus:ring-indigo-200 transition-all text-sm">
-                    <i class="fas fa-search absolute right-6 top-3.5 text-slate-400"></i>
+                <div class="relative flex-1 md:w-64">
+                    <input type="text" id="searchBar" placeholder="關鍵字搜尋課程..." class="w-full pl-10 pr-4 py-2.5 rounded-full bg-slate-100/80 border-none text-sm focus:ring-2 focus:ring-sky-500 transition-all">
+                    <i class="fas fa-search absolute left-4 top-3 text-slate-400"></i>
                 </div>
-                <a href="https://padlet.com/deanatmc/padlet-8e8e63djiwc08sxt" target="_blank" 
-                   class="padlet-btn px-5 py-2.5 rounded-full text-white text-xs font-bold flex items-center gap-2 transition-all hover:scale-105">
-                    <i class="fas fa-columns"></i> Padlet 資源
-                </a>
+                <div class="flex items-center bg-slate-100 rounded-full px-4 py-2 border border-slate-200">
+                    <span class="text-[10px] font-bold text-slate-500 mr-2">同步 ID:</span>
+                    <span id="displayId" class="text-[10px] font-mono text-sky-600 select-all font-bold">載入中...</span>
+                </div>
             </div>
         </div>
     </header>
 
     <main class="container mx-auto px-4 py-8">
-        <!-- 導航 -->
-        <div class="flex gap-4 mb-12 overflow-x-auto py-4 no-scrollbar justify-start md:justify-center">
-            <button onclick="scrollToId('Chen-B4')" class="nav-btn whitespace-nowrap px-6 py-3 bg-sky-600 text-white rounded-2xl text-sm font-bold shadow-lg">陳詮 B4 完整版</button>
-            <button onclick="scrollToId('Liu-B3')" class="nav-btn whitespace-nowrap px-6 py-3 bg-amber-500 text-white rounded-2xl text-sm font-bold shadow-lg">劉川楓 B3</button>
-            <button onclick="scrollToId('Liu-B4')" class="nav-btn whitespace-nowrap px-6 py-3 bg-amber-600 text-white rounded-2xl text-sm font-bold shadow-lg">劉川楓 B4</button>
+        <div class="flex gap-3 mb-10 overflow-x-auto pb-4 no-scrollbar">
+            <button onclick="scrollToId('Chen-B3')" class="px-5 py-2.5 bg-sky-500 text-white rounded-2xl text-xs font-black shadow-lg shadow-sky-100 whitespace-nowrap">陳詮 B3</button>
+            <button onclick="scrollToId('Chen-B4')" class="px-5 py-2.5 bg-sky-700 text-white rounded-2xl text-xs font-black shadow-lg shadow-sky-100 whitespace-nowrap">陳詮 B4</button>
+            <button onclick="scrollToId('Liu-B3')" class="px-5 py-2.5 bg-amber-500 text-white rounded-2xl text-xs font-black shadow-lg shadow-amber-100 whitespace-nowrap">劉川楓 B3</button>
+            <button onclick="scrollToId('Liu-B4')" class="px-5 py-2.5 bg-amber-600 text-white rounded-2xl text-xs font-black shadow-lg shadow-amber-100 whitespace-nowrap">劉川楓 B4</button>
         </div>
 
         <div id="mainContent"></div>
     </main>
 
-    <footer class="py-12 text-center text-slate-400 text-sm">
-        <p>© 理化自學導航系統 · 祝學習順利</p>
-    </footer>
+    <script type="module">
+        // --- Supabase 初始化 ---
+        const supabaseUrl = 'https://piovrdifroesqwozwtnm.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBpb3ZyZGlmcm9lc3F3b3p3dG5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1OTE3NTgsImV4cCI6MjA5MjE2Nzc1OH0.7lmWsr8gd99rNXoZNdSuoVffiny-Z5Zt7jEhZPRXGf8';
+        
+        const { createClient } = supabase;
+        const supabaseInstance = createClient(supabaseUrl, supabaseKey);
 
-    <script>
+        const userId = localStorage.getItem('science_app_uid') || 'study_group_001'; 
+        localStorage.setItem('science_app_uid', userId);
+        document.getElementById('displayId').innerText = userId;
+
+        let completedMap = {};
+
+        // --- 課程清單 ---
         const videoData = [
-            // --- 陳詮 B4 (完整補齊) ---
-            { teacher: "陳詮", cat: "B4", title: "C1-1 化學反應的特徵 (含例題)", url: "https://youtu.be/toMOr4DSKA" },
-            { teacher: "陳詮", cat: "B4", title: "C1-1 化學反應特徵補充", url: "https://youtu.be/QjzEYB8QIPM" },
-            { teacher: "陳詮", cat: "B4", title: "C1-2 質量守恆例題解析", url: "https://youtu.be/iX4ZyM9199Q", tag: "例題" },
+            { teacher: "陳詮", cat: "B3", title: "C1-1 長度與體積測量", url: "https://youtu.be/MgNgJvC9cCI" },
+            { teacher: "陳詮", cat: "B3", title: "C1-2 質量的測量", url: "https://youtu.be/Jpmr5JMJybo" },
+            { teacher: "陳詮", cat: "B3", title: "C1-3 密度的奧秘", url: "https://youtu.be/aAEUIqFObeI" },
+            { teacher: "陳詮", cat: "B3", title: "C2-1 認識物質的狀態", url: "https://youtu.be/u_ygaIOg2Tw" },
+            { teacher: "陳詮", cat: "B3", title: "C2-2 水溶液與溶解度", url: "https://youtu.be/N7f2_6N-yul" },
+            { teacher: "陳詮", cat: "B3", title: "C3-1 波的傳播性質", url: "https://youtu.be/Po67Nze7pfY" },
+            { teacher: "陳詮", cat: "B3", title: "C3-2 聲音的產生與傳播", url: "https://youtu.be/Bxgb7U5sY_8" },
+            { teacher: "陳詮", cat: "B3", title: "C4-1 光的反射與平面鏡", url: "https://youtu.be/TI9uVIZTne8" },
+            { teacher: "陳詮", cat: "B3", title: "C4-2 折射與透鏡成像", url: "https://youtu.be/RB2R-panIUo" },
+            { teacher: "陳詮", cat: "B3", title: "C5-1 溫度與熱量", url: "https://youtu.be/FKJgn7_HIQ" },
+            { teacher: "陳詮", cat: "B3", title: "C5-2 比熱與熱對物質影響", url: "https://youtu.be/PTXijsBihNg" },
+            { teacher: "陳詮", cat: "B4", title: "C1-1 化學反應特徵", url: "https://youtu.be/toMOr4DSKA" },
+            { teacher: "陳詮", cat: "B4", title: "C1-2 質量守恆", url: "https://youtu.be/iX4ZyM9199Q" },
             { teacher: "陳詮", cat: "B4", title: "C1-3 化學反應表示法", url: "https://youtu.be/98xtXVtJzKM" },
-            { teacher: "陳詮", cat: "B4", title: "C1-3 反應係數平衡", url: "https://youtu.be/3hjhTLv6yJ0" },
             { teacher: "陳詮", cat: "B4", title: "C1-4 原子量與莫耳數", url: "https://youtu.be/DbERFgkt7X4" },
-            { teacher: "陳詮", cat: "B4", title: "C1 觀念大集合", url: "https://youtu.be/Po67Nze7pfY", tag: "複習" },
-            { teacher: "陳詮", cat: "B4", title: "C2-1 元素的燃燒與活性", url: "https://youtu.be/SobXMJ7UofU" },
-            { teacher: "陳詮", cat: "B4", title: "C2-2 氧化還原", url: "https://youtu.be/xdbabx5jaPs" },
-            { teacher: "陳詮", cat: "B4", title: "C2-2 氧化還原 (進階)", url: "https://youtu.be/taV_wdGLZ90" },
-            { teacher: "陳詮", cat: "B4", title: "C2 觀念大集合 (生活中的氧化還原)", url: "https://youtu.be/PSL2BLuhyQ" },
-            { teacher: "陳詮", cat: "B4", title: "C3-1 電解質", url: "https://youtu.be/rdEXI1sTZOA" },
-            { teacher: "陳詮", cat: "B4", title: "C3-1 檢測電解質水溶液", url: "https://youtu.be/2WQ3uuXlqfA" },
-            { teacher: "陳詮", cat: "B4", title: "C3-2 離子與根離子", url: "https://youtu.be/Dsx6S6kw" },
-            { teacher: "陳詮", cat: "B4", title: "C3-3 酸鹼與鹽類", url: "https://youtu.be/sceTWmRUn9k" },
-            { teacher: "陳詮", cat: "B4", title: "C4-1 反應速率", url: "https://youtu.be/Bxgb7U5sY_8" },
-            { teacher: "陳詮", cat: "B4", title: "C4-1 反應速率例題 (平衡)", url: "https://youtu.be/Q5Fg7ugmWbA", tag: "例題" },
-            { teacher: "陳詮", cat: "B4", title: "C4 觀念大集合", url: "https://youtu.be/Gpq_CTIMegE" },
-            { teacher: "陳詮", cat: "B4", title: "C5-1 有機化合物定義與檢測", url: "https://youtu.be/Z9piArlF2vk" },
-            { teacher: "陳詮", cat: "B4", title: "C5-1 有機化合物分類與碳氫化合物", url: "https://youtu.be/HAUf3yWr2XE" },
-            { teacher: "陳詮", cat: "B4", title: "C5-2 肥皂與去汙原理", url: "https://youtu.be/ki3Re-q97dI" },
-            { teacher: "陳詮", cat: "B4", title: "C5-3 有機聚合物", url: "https://youtu.be/TI9uVIZTne8" },
-            { teacher: "陳詮", cat: "B4", title: "C5-4 衣料纖維", url: "https://youtu.be/RB2R-panIUo" },
-            { teacher: "陳詮", cat: "B4", title: "C5 觀念大集合", url: "https://youtu.be/FKJgn7_HIQ" },
-            { teacher: "陳詮", cat: "B4", title: "C6-1 力的基本性質", url: "https://youtu.be/PTXijsBihNg" },
-            { teacher: "陳詮", cat: "B4", title: "C6-2 力的合成與分解", url: "https://youtu.be/MgNgJvC9cCI" },
-            { teacher: "陳詮", cat: "B4", title: "C6-3 虎克定律", url: "https://youtu.be/Jpmr5JMJybo" },
-            { teacher: "陳詮", cat: "B4", title: "C6 主題一例題解析", url: "https://youtu.be/aAEUIqFObeI", tag: "例題" },
-            { teacher: "陳詮", cat: "B4", title: "C6-4 摩擦力的種類與性質", url: "https://youtu.be/N7f2_6N-yul" },
-            { teacher: "陳詮", cat: "B4", title: "C6-4 影響摩擦力的因素與應用", url: "https://youtu.be/u_ygaIOg2Tw" },
-            { teacher: "陳詮", cat: "B4", title: "C6-5 壓力與液體壓力", url: "https://youtu.be/smg8j_xdsEA" },
-            { teacher: "陳詮", cat: "B4", title: "C6-7 浮力原理", url: "https://youtu.be/tl9apJ0Fm70" },
-
-            // --- 劉川楓 (保留原有精選) ---
+            { teacher: "陳詮", cat: "B4", title: "C2-2 氧化還原反應", url: "https://youtu.be/xdbabx5jaPs" },
+            { teacher: "陳詮", cat: "B4", title: "C3-1 電解質與解離", url: "https://youtu.be/rdEXI1sTZOA" },
+            { teacher: "陳詮", cat: "B4", title: "C5-1 有機化合物檢測", url: "https://youtu.be/Z9piArlF2vk" },
+            { teacher: "陳詮", cat: "B4", title: "C6-7 浮力原理大解析", url: "https://youtu.be/tl9apJ0Fm70" },
             { teacher: "劉川楓", cat: "B3", title: "B3C1-1 實驗安全與設計", url: "https://youtu.be/kQn2Nm0hrCM" },
+            { teacher: "劉川楓", cat: "B3", title: "B3C1-2 長度與體積測量", url: "https://youtu.be/8_2rn5JM3g4" },
+            { teacher: "劉川楓", cat: "B3", title: "B3C1-3 質量的測量", url: "https://youtu.be/Sfot4hVt-js" },
             { teacher: "劉川楓", cat: "B3", title: "B3C1-4 物質的密度", url: "https://youtu.be/4IX46s7JFk" },
+            { teacher: "劉川楓", cat: "B3", title: "B3C2-1 認識物質", url: "https://youtu.be/aEEd5MhLTD0" },
             { teacher: "劉川楓", cat: "B3", title: "B3C2-2 水溶液及濃度", url: "https://youtu.be/CKNPX091-91" },
+            { teacher: "劉川楓", cat: "B3", title: "B3C3-1 波的傳播", url: "https://youtu.be/JAxyGBJsLgk" },
             { teacher: "劉川楓", cat: "B3", title: "B3C3-2 聲音的傳播", url: "https://youtu.be/tkVgG1MTOq4" },
             { teacher: "劉川楓", cat: "B4", title: "B4C1-1 化學變化與質量守恆", url: "https://youtu.be/E6TeYHxIPIw" },
-            { teacher: "劉川楓", cat: "B4", title: "B4C6-6 浮沉體完全攻略", url: "https://youtu.be/hYVHIuiphG4" }
+            { teacher: "劉川楓", cat: "B4", title: "B4C1-2 原子量與莫耳數", url: "https://youtu.be/JmRan81w-Jg" },
+            { teacher: "劉川楓", cat: "B4", title: "B4C2-1 氧化反應", url: "https://youtu.be/Oera419Rfd4" },
+            { teacher: "劉川楓", cat: "B4", title: "B4C3-1 認識電解質", url: "https://youtu.be/S-g81LsVVYU" }
         ];
 
-        function render(filter = "") {
+        window.render = (filter = "") => {
             const container = document.getElementById('mainContent');
             container.innerHTML = "";
             const teachers = [
-                { name: "陳詮", id: "Chen", color: "sky", icon: "fa-rocket" },
-                { name: "劉川楓", id: "Liu", color: "amber", icon: "fa-bolt" }
+                { name: "陳詮", id: "Chen", color: "sky" },
+                { name: "劉川楓", id: "Liu", color: "amber" }
             ];
 
             teachers.forEach(t => {
-                const teacherSection = document.createElement('div');
-                teacherSection.className = "mb-16 reveal active";
-                teacherSection.innerHTML = `<div class="teacher-section-header bg-white glass-card mb-6">
-                    <h2 class="text-xl font-bold text-${t.color}-600"><i class="fas ${t.icon} mr-2"></i>${t.name} 老師</h2>
-                </div>`;
+                const section = document.createElement('div');
+                section.className = "mb-12";
+                section.innerHTML = `<h2 class="text-xl font-black text-${t.color}-600 mb-6 px-2 flex items-center gap-3">
+                    <span class="w-1.5 h-8 bg-${t.color}-500 rounded-full"></span> ${t.name} 老師影片專區</h2>`;
 
                 ["B3", "B4"].forEach(sem => {
-                    const list = videoData.filter(v => v.teacher === t.name && v.cat === sem && v.title.includes(filter));
+                    const list = videoData.filter(v => v.teacher === t.name && v.cat === sem && v.title.toLowerCase().includes(filter.toLowerCase()));
                     if (list.length === 0) return;
 
                     const group = document.createElement('div');
                     group.id = `${t.id}-${sem}`;
                     group.className = "mb-8";
-                    group.innerHTML = `<h3 class="text-sm font-bold text-slate-400 mb-4 ml-2 uppercase tracking-widest">${sem} 章節清單</h3>
+                    group.innerHTML = `<h3 class="text-xs font-bold text-slate-400 mb-4 px-2 uppercase tracking-widest">${sem} 課程內容</h3>
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>`;
                     
                     const grid = group.querySelector('div');
                     list.forEach(v => {
-                        const isDone = localStorage.getItem(v.url) === 'true';
+                        const isDone = completedMap[v.url] === true;
                         const card = document.createElement('div');
-                        card.className = `video-card glass-card p-5 rounded-2xl flex flex-col justify-between ${isDone ? 'completed' : ''}`;
+                        card.className = `video-card glass-card p-5 rounded-2xl flex flex-col justify-between border ${isDone ? 'completed' : 'border-transparent'}`;
                         card.innerHTML = `
-                            <div>
-                                <div class="flex justify-between items-start mb-2">
-                                    <span class="text-[10px] font-bold text-slate-400">${v.cat}</span>
-                                    ${v.tag ? `<span class="bg-red-100 text-red-600 text-[10px] px-2 py-0.5 rounded font-bold">${v.tag}</span>` : ''}
-                                </div>
-                                <h4 class="video-title text-sm font-bold text-slate-700 leading-snug mb-4">${v.title}</h4>
-                            </div>
-                            <div class="flex items-center justify-between border-t border-slate-100 pt-3">
-                                <a href="${v.url}" target="_blank" class="text-indigo-600 text-xs font-bold flex items-center gap-1 hover:underline">
-                                    <i class="fas fa-play-circle"></i> 觀看影片
+                            <h4 class="video-title text-sm font-bold text-slate-700 leading-snug mb-5">${v.title}</h4>
+                            <div class="flex items-center justify-between pt-4 border-t border-slate-100/50">
+                                <a href="${v.url}" target="_blank" class="text-sky-600 text-xs font-bold flex items-center gap-1 hover:text-sky-800">
+                                    <i class="fab fa-youtube text-red-500 text-lg mr-1"></i> 播放
                                 </a>
-                                <input type="checkbox" ${isDone ? 'checked' : ''} onchange="toggle('${v.url}', this)" class="w-5 h-5 rounded-full accent-green-500 cursor-pointer">
+                                <label class="flex items-center gap-2 cursor-pointer group">
+                                    <span class="text-[10px] text-slate-400 group-hover:text-slate-600">${isDone ? '已完讀' : '完成'}</span>
+                                    <input type="checkbox" ${isDone ? 'checked' : ''} onchange="updateProgress('${v.url}', this.checked)" class="w-5 h-5 rounded-lg accent-green-500 cursor-pointer">
+                                </label>
                             </div>
                         `;
                         grid.appendChild(card);
                     });
-                    teacherSection.appendChild(group);
+                    section.appendChild(group);
                 });
-                if (teacherSection.children.length > 1) container.appendChild(teacherSection);
+                if (section.children.length > 1) container.appendChild(section);
             });
-        }
+        };
 
-        window.toggle = (url, el) => {
-            if (el.checked) {
-                localStorage.setItem(url, 'true');
-                confetti({ particleCount: 100, spread: 70, origin: { y: 0.7 } });
+        window.updateProgress = async (url, checked) => {
+            if (checked) {
+                completedMap[url] = true;
+                confetti({ particleCount: 100, spread: 70, origin: { y: 0.8 }, colors: ['#0ea5e9', '#22c55e'] });
             } else {
-                localStorage.removeItem(url);
+                delete completedMap[url];
             }
-            setTimeout(() => render(document.getElementById('searchBar').value), 300);
+
+            localStorage.setItem('science_completed', JSON.stringify(completedMap));
+            
+            try {
+                await supabaseInstance.from('science_tracker').upsert({ user_id: userId, data: completedMap });
+            } catch (err) {
+                console.error("同步失敗:", err);
+            }
+            render(document.getElementById('searchBar').value);
+        };
+
+        // 改用 Polling 輪詢機制來解決 WebSocket 權限問題
+        const fetchLatestData = async () => {
+            try {
+                const { data, error } = await supabaseInstance.from('science_tracker').select('data').eq('user_id', userId).single();
+                if (data && JSON.stringify(data.data) !== JSON.stringify(completedMap)) {
+                    completedMap = data.data;
+                    render(document.getElementById('searchBar').value);
+                    document.getElementById('syncStatus').innerHTML = `<i class="fas fa-check-circle text-green-500 mr-1"></i>雲端已同步`;
+                }
+            } catch (e) {
+                console.error("輪詢更新失敗:", e);
+            }
+        };
+
+        const initSync = async () => {
+            // 初始載入
+            const local = localStorage.getItem('science_completed');
+            if (local) completedMap = JSON.parse(local);
+            render();
+
+            try {
+                const { data } = await supabaseInstance.from('science_tracker').select('data').eq('user_id', userId).single();
+                if (data) {
+                    completedMap = data.data;
+                    render();
+                    document.getElementById('syncStatus').innerHTML = `<i class="fas fa-check-circle text-green-500 mr-1"></i>雲端已連線 (Polling模式)`;
+                } else {
+                    document.getElementById('syncStatus').innerHTML = `<i class="fas fa-cloud-upload-alt text-sky-400 mr-1"></i>新裝置`;
+                }
+                
+                // 設定每 5 秒檢查一次更新
+                setInterval(fetchLatestData, 5000);
+            } catch (e) {
+                document.getElementById('syncStatus').innerHTML = `<i class="fas fa-exclamation-triangle text-amber-500 mr-1"></i>本機模式`;
+            }
         };
 
         window.scrollToId = (id) => {
             const el = document.getElementById(id);
-            if(el) window.scrollTo({ top: el.offsetTop - 100, behavior: 'smooth' });
+            if(el) window.scrollTo({ top: el.offsetTop - 120, behavior: 'smooth' });
         };
 
         document.getElementById('searchBar').addEventListener('input', (e) => render(e.target.value));
-        function handleScroll() {
-            document.querySelectorAll('.reveal').forEach(el => {
-                if (el.getBoundingClientRect().top < window.innerHeight - 50) el.classList.add('active');
-            });
-        }
-        window.addEventListener('scroll', handleScroll);
-        render();
+        initSync();
     </script>
 </body>
 </html>
