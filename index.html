@@ -3,92 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>理化雲端導航 | 完整課程同步版</title>
+    <title>理化雲端導航 | 完整課程</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
-        body { font-family: 'Noto Sans TC', sans-serif; background: #f1f5f9; color: #1e293b; -webkit-tap-highlight-color: transparent; }
-        .glass-card { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.5); }
-        .video-card { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; border-radius: 16px; }
-        .completed { background: #ecfdf5 !important; border-color: #a7f3d0 !important; }
-        .completed .title-text { color: #065f46; text-decoration: line-through; opacity: 0.5; }
-        .custom-checkbox { width: 20px; height: 20px; border-radius: 6px; border: 2px solid #cbd5e1; appearance: none; display: flex; align-items: center; justify-content: center; background: white; flex-shrink: 0; }
-        .custom-checkbox:checked { background: #10b981; border-color: #10b981; }
-        .custom-checkbox:checked::after { content: "\f00c"; font-family: "Font Awesome 6 Free"; font-weight: 900; color: white; font-size: 10px; }
+        body { font-family: 'Noto Sans TC', sans-serif; background: #f8fafc; color: #1e293b; -webkit-tap-highlight-color: transparent; }
+        .glass-card { background: white; border: 1px solid #e2e8f0; border-radius: 16px; transition: all 0.2s; }
+        .completed { background: #f0fdf4 !important; border-color: #bbf7d0 !important; }
+        .completed h3 { color: #166534; text-decoration: line-through; opacity: 0.6; }
+        .custom-checkbox { width: 22px; height: 22px; border-radius: 6px; border: 2px solid #cbd5e1; appearance: none; display: flex; align-items: center; justify-content: center; background: white; flex-shrink: 0; }
+        .custom-checkbox:checked { background: #22c55e; border-color: #22c55e; }
+        .custom-checkbox:checked::after { content: "\f00c"; font-family: "Font Awesome 6 Free"; font-weight: 900; color: white; font-size: 12px; }
         .tab-active { color: #0284c7; border-bottom: 3px solid #0284c7; }
-        @keyframes pulse-sync { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
-        .syncing { animation: pulse-sync 1s infinite; }
+        @keyframes pulse-sync { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+        .syncing { animation: pulse-sync 1.2s infinite; }
     </style>
 </head>
-<body class="pb-24">
-    <!-- 登入牆 -->
-    <div id="authGuard" class="fixed inset-0 z-[100] bg-slate-900/40 backdrop-blur-md flex items-center justify-center px-6">
-        <div class="w-full max-w-sm bg-white p-8 rounded-[32px] shadow-2xl text-center">
-            <div class="w-16 h-16 bg-sky-600 text-white rounded-2xl flex items-center justify-center text-2xl mx-auto mb-6 shadow-lg">
-                <i class="fas fa-key"></i>
+<body class="pb-20">
+    <!-- 登入驗證 -->
+    <div id="authGuard" class="fixed inset-0 z-[100] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center px-6">
+        <div class="w-full max-w-sm bg-white p-8 rounded-[2rem] shadow-2xl text-center">
+            <div class="w-16 h-16 bg-sky-500 text-white rounded-2xl flex items-center justify-center text-2xl mx-auto mb-6 shadow-lg shadow-sky-200">
+                <i class="fas fa-user-graduate"></i>
             </div>
-            <h2 class="text-xl font-black mb-1">理化學習同步</h2>
-            <p class="text-slate-400 text-sm mb-6">輸入密碼以同步您的學習進度</p>
-            <input type="password" id="pwInput" placeholder="請輸入密碼" class="w-full p-4 rounded-xl bg-slate-100 border-none text-center text-xl mb-4 outline-sky-500">
-            <button onclick="checkPw()" id="loginBtn" class="w-full py-4 bg-sky-600 text-white rounded-xl font-bold active:scale-95 transition-all">開啟雲端導航</button>
+            <h2 class="text-xl font-black mb-1 text-slate-800">理化雲端導航</h2>
+            <p class="text-slate-400 text-sm mb-8">請輸入學習密碼</p>
+            <input type="password" id="pwInput" placeholder="密碼：study" class="w-full p-4 rounded-xl bg-slate-100 border-none text-center text-xl mb-4 outline-sky-500">
+            <button onclick="checkPw()" class="w-full py-4 bg-sky-600 text-white rounded-xl font-bold active:scale-95 transition-all">登入學習系統</button>
         </div>
     </div>
 
     <div id="app" class="hidden">
-        <header class="sticky top-0 bg-white/80 backdrop-blur-md border-b z-40 px-6 py-4">
-            <div class="flex justify-between items-center mb-4">
+        <header class="sticky top-0 bg-white/90 backdrop-blur-md border-b z-40 px-6 pt-6 pb-2">
+            <div class="flex justify-between items-start mb-4">
                 <div>
-                    <h1 class="text-lg font-black text-slate-800">理化雲端導航</h1>
-                    <div class="flex items-center gap-1.5">
-                        <div id="syncDot" class="w-2 h-2 rounded-full bg-slate-300"></div>
-                        <span id="syncStatusText" class="text-[10px] font-bold text-slate-400 uppercase tracking-tighter">離線模式</span>
+                    <h1 class="text-xl font-black text-slate-800 tracking-tight">學習進度同步</h1>
+                    <div class="flex items-center gap-2 mt-1">
+                        <div id="syncDot" class="w-2.5 h-2.5 rounded-full bg-slate-300"></div>
+                        <span id="syncText" class="text-xs font-bold text-slate-400 uppercase">準備中...</span>
                     </div>
                 </div>
-                <div id="uID" class="text-[10px] font-mono bg-slate-100 px-2 py-1 rounded text-slate-400">ID: ----</div>
+                <div id="uIDDisplay" class="text-[10px] font-mono bg-slate-100 px-2 py-1 rounded text-slate-500 border border-slate-200">ID: ----</div>
             </div>
-            <div class="flex gap-6">
-                <button onclick="switchTab('陳詮')" id="tab-陳詮" class="pb-2 text-sm font-bold tab-active transition-all">陳詮老師</button>
-                <button onclick="switchTab('劉川楓')" id="tab-劉川楓" class="pb-2 text-sm font-bold text-slate-400 transition-all">劉川楓老師</button>
+            <div class="flex gap-8">
+                <button onclick="switchTab('陳詮')" id="tab-陳詮" class="pb-3 text-sm font-black tab-active transition-all">陳詮老師</button>
+                <button onclick="switchTab('劉川楓')" id="tab-劉川楓" class="pb-3 text-sm font-bold text-slate-400 transition-all">劉川楓老師</button>
             </div>
         </header>
 
         <main class="p-5">
-            <div class="mb-6 relative">
-                <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-300"></i>
-                <input type="text" id="searchBox" oninput="render()" placeholder="搜尋單元名稱或章節..." class="w-full pl-11 pr-4 py-3.5 rounded-2xl bg-white shadow-sm border border-slate-100 focus:ring-2 focus:ring-sky-500 outline-none">
+            <div id="list" class="space-y-3">
+                <!-- 課程清單將由此處生成 -->
             </div>
-            <div id="list" class="space-y-3"></div>
         </main>
     </div>
 
     <script>
-        const S_URL = 'https://piovrdifroesqwozwtnm.supabase.co';
-        const S_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBpb3ZyZGlmcm9lc3F3b3p3dG5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1OTE3NTgsImV4cCI6MjA5MjE2Nzc1OH0.7lmWsr8gd99rNXoZNdSuoVffiny-Z5Zt7jEhZPRXGf8';
+        const SB_URL = 'https://piovrdifroesqwozwtnm.supabase.co';
+        const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBpb3ZyZGlmcm9lc3F3b3p3dG5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1OTE3NTgsImV4cCI6MjA5MjE2Nzc1OH0.7lmWsr8gd99rNXoZNdSuoVffiny-Z5Zt7jEhZPRXGf8';
         
         let currentTeacher = '陳詮';
-        let progress = JSON.parse(localStorage.getItem('sci_v4_data') || '{}');
-        let userId = localStorage.getItem('sci_v4_id') || `S${Math.floor(Date.now()%10000)}`;
-        let sb;
+        let progress = JSON.parse(localStorage.getItem('sci_v5_data') || '{}');
+        let userId = localStorage.getItem('sci_v5_id') || `STU${Math.floor(Math.random()*9000)+1000}`;
+        let supabaseClient;
 
-        // 根據上傳的 PDF 補全完整課程
+        // 完整課程資料
         const courses = [
-            // --- 陳詮老師 ---
+            // 陳詮老師
             { teacher: "陳詮", cat: "B4-C1", title: "化學反應的特徵 (含例題)", url: "https://youtu.be/toMOr4DSKA" },
-            { teacher: "陳詮", cat: "B4-C1", title: "質量守恆", url: "https://youtu.be/QjzEYB8QIPM" },
+            { teacher: "陳詮", cat: "B4-C1", title: "質量守恆定律", url: "https://youtu.be/QjzEYB8QIPM" },
             { teacher: "陳詮", cat: "B4-C1", title: "化學反應表示法及係數平衡", url: "https://youtu.be/98xtXVtJzKM" },
             { teacher: "陳詮", cat: "B4-C1", title: "原子量與莫耳數", url: "https://youtu.be/DbERFgkt7X4" },
+            { teacher: "陳詮", cat: "B4-C2", title: "元素的燃燒與活性", url: "https://youtu.be/SobXMJ7UofU" },
             { teacher: "陳詮", cat: "B4-C2", title: "氧化還原觀念", url: "https://youtu.be/taV_wdGLZ90" },
             { teacher: "陳詮", cat: "B4-C3", title: "電解質觀念", url: "https://youtu.be/rdEXI1sTZOA" },
             { teacher: "陳詮", cat: "B4-C3", title: "酸鹼鹽觀念大集合", url: "https://youtu.be/Gpq_CTIMegE" },
             { teacher: "陳詮", cat: "B4-C4", title: "有機化合物定義與檢測", url: "https://youtu.be/Z9piArlF2vk" },
+            { teacher: "陳詮", cat: "B4-C5", title: "有機聚合物", url: "https://youtu.be/RB2R-panIUo" },
             { teacher: "陳詮", cat: "B4-C6", title: "力的基本性質", url: "https://youtu.be/PTXijsBihNg" },
             { teacher: "陳詮", cat: "B4-C6", title: "大氣壓力觀念", url: "https://youtu.be/EEkbL8QZhdc" },
             { teacher: "陳詮", cat: "B4-C6", title: "浮體與沉體關係式", url: "https://youtu.be/FV33NgTMpcE" },
             
-            // --- 劉川楓老師 ---
+            // 劉川楓老師
             { teacher: "劉川楓", cat: "B3-C1", title: "1-1 實驗安全與設計", url: "https://youtu.be/kQn2Nm0hrCM" },
             { teacher: "劉川楓", cat: "B3-C1", title: "1-2 長度與體積的測量", url: "https://youtu.be/8_2rn5JM3g4" },
             { teacher: "劉川楓", cat: "B3-C1", title: "1-4 物質的密度", url: "https://youtu.be/4IX46s7JFk1" },
@@ -104,116 +103,112 @@
 
         function checkPw() {
             if(document.getElementById('pwInput').value === 'study') {
-                document.getElementById('authGuard').style.display = 'none';
+                document.getElementById('authGuard').classList.add('hidden');
                 document.getElementById('app').classList.remove('hidden');
-                initSB();
+                initApp();
             } else {
-                alert('密碼錯誤');
+                alert('密碼有誤，請再試一次');
             }
         }
 
-        async function initSB() {
+        async function initApp() {
             try {
-                sb = supabase.createClient(S_URL, S_KEY);
-                localStorage.setItem('sci_v4_id', userId);
-                document.getElementById('uID').innerText = `ID: ${userId}`;
+                supabaseClient = supabase.createClient(SB_URL, SB_KEY);
+                localStorage.setItem('sci_v5_id', userId);
+                document.getElementById('uIDDisplay').innerText = `ID: ${userId}`;
                 
-                updateStatus("連線中...", "bg-sky-400", true);
+                setStatus("雲端同步中", "bg-sky-400", true);
                 
-                const { data, error } = await sb.from('science_tracker').select('data').eq('user_id', userId).maybeSingle();
+                // 從資料表抓取資料
+                const { data, error } = await supabaseClient
+                    .from('science_tracker')
+                    .select('data')
+                    .eq('user_id', userId)
+                    .maybeSingle();
                 
-                if(!error && data) {
+                if (data && data.data) {
                     progress = data.data;
-                    localStorage.setItem('sci_v4_data', JSON.stringify(progress));
-                    updateStatus("同步完成", "bg-green-500");
-                } else if(error) {
-                    console.error("Fetch Error:", error);
-                    updateStatus("雲端連線中", "bg-amber-500");
+                    localStorage.setItem('sci_v5_data', JSON.stringify(progress));
+                    setStatus("已同步最新進度", "bg-green-500");
                 } else {
-                    updateStatus("新進度就緒", "bg-green-500");
+                    setStatus("本地模式 (新用戶)", "bg-green-500");
                 }
                 render();
-            } catch(e) {
-                updateStatus("連線失敗", "bg-red-500");
+            } catch (err) {
+                console.error(err);
+                setStatus("同步失敗", "bg-red-500");
+                render();
             }
         }
 
-        async function syncToCloud() {
-            if(!sb) return;
-            updateStatus("同步中...", "bg-sky-400", true);
+        async function syncCloud() {
+            if (!supabaseClient) return;
+            setStatus("儲存至雲端...", "bg-sky-400", true);
             
-            // 核心修正：移除 updated_at 欄位，只傳送 user_id 和 data
-            const { error } = await sb.from('science_tracker').upsert({ 
-                user_id: userId, 
-                data: progress
-            }, { onConflict: 'user_id' });
+            // 使用簡單的 upsert，僅包含 user_id 和 data 欄位
+            const { error } = await supabaseClient
+                .from('science_tracker')
+                .upsert({ user_id: userId, data: progress }, { onConflict: 'user_id' });
 
-            if(error) {
-                console.error("Sync Error:", error);
-                updateStatus("同步出錯", "bg-red-500");
+            if (error) {
+                console.error("Cloud Sync Error:", error);
+                setStatus("雲端儲存失敗", "bg-red-500");
             } else {
-                updateStatus("雲端已同步", "bg-green-500");
+                setStatus("已安全儲存", "bg-green-500");
             }
         }
 
-        function updateStatus(txt, cls, isSync = false) {
+        function setStatus(text, color, isSyncing = false) {
             const dot = document.getElementById('syncDot');
-            const st = document.getElementById('syncStatusText');
-            if(dot && st) {
-                dot.className = `w-2 h-2 rounded-full ${cls} ${isSync ? 'syncing' : ''}`;
-                st.innerText = txt;
-            }
+            const label = document.getElementById('syncText');
+            dot.className = `w-2.5 h-2.5 rounded-full ${color} ${isSyncing ? 'syncing' : ''}`;
+            label.innerText = text;
         }
 
         function render() {
-            const query = document.getElementById('searchBox').value.toLowerCase();
-            const container = document.getElementById('list');
-            if(!container) return;
-            container.innerHTML = "";
+            const listContainer = document.getElementById('list');
+            listContainer.innerHTML = '';
 
-            const filtered = courses.filter(c => 
-                c.teacher === currentTeacher && 
-                (c.title.toLowerCase().includes(query) || c.cat.toLowerCase().includes(query))
-            );
+            const filtered = courses.filter(c => c.teacher === currentTeacher);
 
-            filtered.forEach(c => {
-                const done = progress[c.url];
+            filtered.forEach(item => {
+                const isDone = progress[item.url] === true;
                 const card = document.createElement('div');
-                card.className = `video-card glass-card p-4 flex items-center gap-4 ${done ? 'completed shadow-none' : 'shadow-sm bg-white'}`;
-                card.onclick = () => {
-                    if(progress[c.url]) delete progress[c.url];
-                    else {
-                        progress[c.url] = true;
-                        confetti({ particleCount: 15, spread: 50, origin: { y: 0.8 }, colors:['#0ea5e9'] });
-                    }
-                    localStorage.setItem('sci_v4_data', JSON.stringify(progress));
-                    render();
-                    syncToCloud();
-                };
-
+                card.className = `glass-card p-5 flex items-center gap-4 ${isDone ? 'completed' : 'shadow-sm'}`;
+                
                 card.innerHTML = `
-                    <div class="custom-checkbox ${done ? 'checked' : ''}"></div>
+                    <input type="checkbox" class="custom-checkbox" ${isDone ? 'checked' : ''}>
                     <div class="flex-1 min-w-0">
-                        <span class="text-[9px] font-bold px-1.5 py-0.5 rounded ${done ? 'bg-green-200 text-green-700' : 'bg-slate-200 text-slate-500'} mb-1 inline-block uppercase">${c.cat}</span>
-                        <h3 class="title-text font-bold text-slate-700 text-sm truncate">${c.title}</h3>
+                        <div class="text-[10px] font-bold text-slate-400 mb-1 uppercase tracking-wider">${item.cat}</div>
+                        <h3 class="font-bold text-slate-800 text-sm md:text-base leading-tight">${item.title}</h3>
                     </div>
-                    <a href="${c.url}" target="_blank" onclick="event.stopPropagation()" class="w-9 h-9 rounded-full bg-red-50 flex items-center justify-center text-red-500">
-                        <i class="fab fa-youtube text-lg"></i>
+                    <a href="${item.url}" target="_blank" onclick="event.stopPropagation()" class="flex-shrink-0 w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-600 hover:bg-red-100 transition-colors">
+                        <i class="fab fa-youtube"></i>
                     </a>
                 `;
-                container.appendChild(card);
+
+                card.onclick = () => {
+                    if (progress[item.url]) {
+                        delete progress[item.url];
+                    } else {
+                        progress[item.url] = true;
+                        confetti({ particleCount: 20, spread: 40, origin: { y: 0.9 }, colors: ['#22c55e'] });
+                    }
+                    localStorage.setItem('sci_v5_data', JSON.stringify(progress));
+                    render();
+                    syncCloud();
+                };
+
+                listContainer.appendChild(card);
             });
         }
 
         function switchTab(t) {
             currentTeacher = t;
-            document.getElementById('tab-陳詮').className = t === '陳詮' ? 'pb-2 text-sm font-bold tab-active' : 'pb-2 text-sm font-bold text-slate-400';
-            document.getElementById('tab-劉川楓').className = t === '劉川楓' ? 'pb-2 text-sm font-bold tab-active' : 'pb-2 text-sm font-bold text-slate-400';
+            document.getElementById('tab-陳詮').className = t === '陳詮' ? 'pb-3 text-sm font-black tab-active' : 'pb-3 text-sm font-bold text-slate-400';
+            document.getElementById('tab-劉川楓').className = t === '劉川楓' ? 'pb-3 text-sm font-black tab-active' : 'pb-3 text-sm font-bold text-slate-400';
             render();
         }
-
-        // 初始化渲染
-        render();
     </script>
 </body>
 </html>
