@@ -3,81 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>理化雲端導航 | 個人專屬版</title>
+    <title> 理化雲端導航 </title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
-        body { font-family: 'Noto Sans TC', sans-serif; background: #f1f5f9; color: #1e293b; overflow-x: hidden; }
-        .glass-card { background: white; border-radius: 20px; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid #e2e8f0; }
-        .glass-card:active { transform: scale(0.98); }
-        .completed { background: #f0fdf4; border-color: #86efac; }
-        .completed h3 { color: #15803d; text-decoration: line-through; opacity: 0.7; }
-        .custom-checkbox { width: 24px; height: 24px; border-radius: 8px; border: 2.5px solid #cbd5e1; appearance: none; display: flex; align-items: center; justify-content: center; background: white; cursor: pointer; }
+        body { font-family: 'Noto Sans TC', sans-serif; background: #f8fafc; color: #1e293b; }
+        .glass-card { background: white; border-radius: 16px; border: 1px solid #e2e8f0; transition: all 0.2s ease; }
+        .completed { background: #f0fdf4 !important; border-color: #86efac !important; opacity: 0.8; }
+        .completed h4 { color: #15803d; text-decoration: line-through; }
+        .custom-checkbox { width: 22px; height: 22px; border-radius: 6px; border: 2px solid #cbd5e1; appearance: none; display: flex; align-items: center; justify-content: center; background: white; cursor: pointer; flex-shrink: 0; }
         .custom-checkbox:checked { background: #22c55e; border-color: #22c55e; }
-        .custom-checkbox:checked::after { content: "\f00c"; font-family: "Font Awesome 6 Free"; font-weight: 900; color: white; font-size: 14px; }
-        .tab-btn { position: relative; padding: 10px 4px; font-weight: 700; color: #94a3b8; transition: all 0.3s; }
-        .tab-btn.active { color: #0284c7; }
-        .tab-btn.active::after { content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 4px; background: #0284c7; border-radius: 10px; }
-        
+        .custom-checkbox:checked::after { content: "\f00c"; font-family: "Font Awesome 6 Free"; font-weight: 900; color: white; font-size: 12px; }
+        .tab-btn { padding: 12px 4px; font-weight: 700; color: #94a3b8; border-bottom: 3px solid transparent; transition: all 0.3s; }
+        .tab-btn.active { color: #0284c7; border-bottom-color: #0284c7; }
         #authOverlay { position: fixed; inset: 0; z-index: 1000; background: #f1f5f9; display: flex; align-items: center; justify-content: center; }
         .hidden { display: none !important; }
     </style>
 </head>
 <body class="pb-10">
-    <!-- 密碼鎖定層 -->
+    <!-- 密碼驗證 -->
     <div id="authOverlay">
-        <div class="w-full max-w-sm px-6 text-center">
-            <div class="bg-white p-8 rounded-[32px] shadow-2xl shadow-slate-200 border border-white">
-                <div class="w-20 h-20 bg-sky-500 text-white rounded-3xl flex items-center justify-center text-3xl mx-auto mb-6 shadow-lg shadow-sky-200">
-                    <i class="fas fa-lock"></i>
+        <div class="w-full max-w-sm px-6">
+            <div class="bg-white p-8 rounded-[32px] shadow-2xl text-center">
+                <div class="w-16 h-16 bg-sky-500 text-white rounded-2xl flex items-center justify-center text-2xl mx-auto mb-6 shadow-lg">
+                    <i class="fas fa-key"></i>
                 </div>
-                <h2 class="text-2xl font-black text-slate-800 mb-2">請輸入存取密碼</h2>
-                <p class="text-slate-400 text-sm mb-6">這是您的私密學習空間</p>
-                <input type="password" id="entryPassword" placeholder="請輸入密碼" autofocus
-                       class="w-full px-4 py-4 rounded-2xl bg-slate-100 border-2 border-transparent focus:border-sky-500 focus:bg-white transition-all outline-none text-center text-xl tracking-widest mb-4">
-                <button onclick="checkPassword()" id="unlockBtn" 
-                        class="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold hover:bg-sky-600 active:scale-95 transition-all">
-                    解鎖進入
-                </button>
-                <p id="errorMsg" class="text-red-500 text-sm mt-4 hidden">密碼不正確，請再試一次</p>
+                <h2 class="text-2xl font-black text-slate-800 mb-4">請輸入學習密碼</h2>
+                <input type="password" id="entryPassword" placeholder=" ~~ 請輸入密碼 ~~ " 
+                       class="w-full px-4 py-4 rounded-2xl bg-slate-100 border-2 border-transparent focus:border-sky-500 focus:bg-white outline-none text-center text-xl mb-4">
+                <button onclick="checkPassword()" class="w-full py-4 bg-slate-900 text-white rounded-2xl font-bold active:scale-95 transition-all">進入系統</button>
             </div>
         </div>
     </div>
 
-    <!-- 主應用程式介面 -->
+    <!-- 主頁面 -->
     <div id="app" class="hidden">
-        <header class="sticky top-0 bg-white/80 backdrop-blur-xl border-b z-40 px-6 pt-8 pb-4">
-            <div class="flex justify-between items-center mb-6">
-                <div>
-                    <h1 class="text-2xl font-black text-slate-900">理化雲端導航</h1>
-                    <div class="flex items-center gap-2 mt-1">
-                        <span id="syncStatus" class="flex items-center gap-1.5 text-xs font-bold text-slate-400">
-                            <span id="statusDot" class="w-2 h-2 rounded-full bg-slate-300"></span>
-                            <span id="statusText">正在連線...</span>
-                        </span>
+        <header class="sticky top-0 bg-white/80 backdrop-blur-md border-b z-40 px-6 pt-6">
+            <div class="flex justify-between items-center mb-4">
+                <h1 class="text-xl font-black text-slate-900">理化雲端導航 <span class="text-sky-500">v2.0</span></h1>
+                <div id="syncStatus" class="text-[10px] font-bold text-slate-400 flex items-center gap-1.5">
+                    <span id="statusDot" class="w-2 h-2 rounded-full bg-slate-300"></span>
+                    <span id="statusText">離線</span>
+                </div>
+            </div>
+
+            <div class="bg-slate-900 rounded-2xl p-5 mb-4 text-white shadow-xl">
+                <div class="flex justify-between items-end mb-3">
+                    <div>
+                        <p class="text-slate-400 text-[10px] font-bold uppercase tracking-widest">全科目總進度</p>
+                        <h2 class="text-3xl font-black"><span id="totalPercent">0</span>%</h2>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-sm font-bold text-sky-400"><span id="totalWatched">0</span> / <span id="totalCount">0</span></p>
+                        <p class="text-[10px] text-slate-500 font-bold">影片已達成</p>
                     </div>
                 </div>
-                <div class="text-right">
-                    <span class="text-[10px] font-black text-slate-300 tracking-widest">PRIVATE LOCK</span>
+                <div class="w-full bg-slate-800 h-2 rounded-full overflow-hidden">
+                    <div id="totalBar" class="bg-sky-400 h-full transition-all duration-700" style="width: 0%"></div>
                 </div>
             </div>
             
-            <div class="flex gap-8">
-                <button onclick="switchTab('陳詮')" id="tab-陳詮" class="tab-btn active">陳詮老師</button>
-                <button onclick="switchTab('劉川楓')" id="tab-劉川楓" class="tab-btn">劉川楓老師</button>
+            <div class="flex gap-6 overflow-x-auto no-scrollbar">
+                <button onclick="switchTab('陳詮')" id="tab-陳詮" class="tab-btn active whitespace-nowrap">陳詮老師 (PDF清單)</button>
+                <button onclick="switchTab('全集')" id="tab-全集" class="tab-btn whitespace-nowrap">B3/B4 歷屆會考全集</button>
             </div>
         </header>
 
-        <main class="p-6 space-y-4" id="courseList">
-            <!-- 載入中動畫 -->
-            <div class="py-20 text-center text-slate-300">
-                <i class="fas fa-circle-notch animate-spin text-3xl mb-4"></i>
-                <p class="text-sm font-bold">正在讀取進度...</p>
-            </div>
-        </main>
+        <main class="p-6 space-y-8" id="courseList"></main>
     </div>
 
     <script>
@@ -86,96 +81,208 @@
         const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBpb3ZyZGlmcm9lc3F3b3p3dG5tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY1OTE3NTgsImV4cCI6MjA5MjE2Nzc1OH0.7lmWsr8gd99rNXoZNdSuoVffiny-Z5Zt7jEhZPRXGf8';
         
         const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
-        const myId = 'MyPrivateRoom_001'; 
-        let currentTeacher = '陳詮';
+        const userId = 'user_unique_001'; 
+        let currentTab = '陳詮';
         let progress = {};
 
-        const courseData = [
-            { teacher: "陳詮", cat: "B4-C1", title: "化學反應的特徵 (含例題)", url: "https://youtu.be/toMOr4DSKA" },
-            { teacher: "陳詮", cat: "B4-C1", title: "質量守恆定律", url: "https://youtu.be/QjzEYB8QIPM" },
-            { teacher: "陳詮", cat: "B4-C1", title: "化學反應表示法及係數平衡", url: "https://youtu.be/98xtXVtJzKM" },
-            { teacher: "陳詮", cat: "B4-C1", title: "原子量與莫耳數", url: "https://youtu.be/DbERFgkt7X4" },
-            { teacher: "陳詮", cat: "B4-C2", title: "元素的燃燒與活性", url: "https://youtu.be/SobXMJ7UofU" },
-            { teacher: "陳詮", cat: "B4-C2", title: "氧化還原觀念大集合", url: "https://youtu.be/taV_wdGLZ90" },
-            { teacher: "陳詮", cat: "B4-C3", title: "電解質觀念", url: "https://youtu.be/rdEXI1sTZOA" },
-            { teacher: "陳詮", cat: "B4-C3", title: "酸鹼鹽觀念大集合", url: "https://youtu.be/Gpq_CTIMegE" },
-            { teacher: "陳詮", cat: "B4-C4", title: "有機化合物定義與檢測", url: "https://youtu.be/Z9piArlF2vk" },
-            { teacher: "陳詮", cat: "B4-C5", title: "有機聚合物", url: "https://youtu.be/RB2R-panIUo" },
-            { teacher: "陳詮", cat: "B4-C6", title: "力的基本性質", url: "https://youtu.be/PTXijsBihNg" },
-            { teacher: "陳詮", cat: "B4-C6", title: "大氣壓力觀念", url: "https://youtu.be/EEkbL8QZhdc" },
-            { teacher: "陳詮", cat: "B4-C6", title: "浮體與沉體關係式", url: "https://youtu.be/FV33NgTMpcE" },
-            { teacher: "劉川楓", cat: "B3-C1", title: "1-1 實驗安全與設計", url: "https://youtu.be/kQn2Nm0hrCM" },
-            { teacher: "劉川楓", cat: "B3-C1", title: "1-2 長度與體積的測量", url: "https://youtu.be/8_2rn5JM3g4" },
-            { teacher: "劉川楓", cat: "B3-C1", title: "1-4 物質的密度", url: "https://youtu.be/4IX46s7JFk1" },
-            { teacher: "劉川楓", cat: "B3-C2", title: "2-2 水溶液及濃度", url: "https://youtu.be/CKNPX091-91" },
-            { teacher: "劉川楓", cat: "B3-C3", title: "3-1 波的傳播", url: "https://youtu.be/JAxyGBJsLgk" },
-            { teacher: "劉川楓", cat: "B3-C4", title: "4-1 光的直進", url: "https://youtu.be/jvIys5anwVE" },
-            { teacher: "劉川楓", cat: "B3-C5", title: "5-2 熱量與比熱", url: "https://youtu.be/Nb9n2PExZQk" },
-            { teacher: "劉川楓", cat: "B3-C6", title: "6-6 物質變化的粒子觀點", url: "https://youtu.be/1lkLfobZxS8" },
-            { teacher: "劉川楓", cat: "B4-C1", title: "1-2 原子量與莫耳數", url: "https://youtu.be/JmRan81w-Jg" },
-            { teacher: "劉川楓", cat: "B4-C2", title: "2-2 氧化還原與其應用", url: "https://youtu.be/6DHT4mo3L88" },
-            { teacher: "劉川楓", cat: "B4-C6", title: "6-6 水的浮力", url: "https://youtu.be/hYVHIuiphG4" }
+        // 完整影片資料庫
+        const masterData = [
+            // --- 陳詮老師 講義影片清單 (完全依照 PDF) ---
+            { source: "陳詮", cat: "第1章 化學反應", title: "化學反應的特徵 (含例題)", url: "https://youtu.be/toMOr4DSKA", note: "含例題" },
+            { source: "陳詮", cat: "第1章 化學反應", title: "化學反應特徵 例題", url: "https://youtu.be/QjzEYB8QIPM", note: "例題" },
+            { source: "陳詮", cat: "第1章 化學反應", title: "質量守恆 例題", url: "https://youtu.be/iX4ZyM9199Q", note: "例題影片" },
+            { source: "陳詮", cat: "第1章 化學反應", title: "化學反應表示法及平衡", url: "https://youtu.be/98xtXVtJzKM", note: "" },
+            { source: "陳詮", cat: "第1章 化學反應", title: "反應係數平衡", url: "https://youtu.be/3hjhTLv6yJ0", note: "例題影片" },
+            { source: "陳詮", cat: "第1章 化學反應", title: "原子量與莫耳數", url: "https://youtu.be/DbERFgkt7X4", note: "含例題" },
+            { source: "陳詮", cat: "第1章 化學反應", title: "莫耳數 觀念大集合", url: "https://youtu.be/Po67Nze7pfY", note: "" },
+
+            { source: "陳詮", cat: "第2章 氧化還原", title: "元素的燃燒與活性", url: "https://youtu.be/SobXMJ7UofU", note: "" },
+            { source: "陳詮", cat: "第2章 氧化還原", title: "氧化還原", url: "https://youtu.be/xdbabx5jaPs", note: "" },
+            { source: "陳詮", cat: "第2章 氧化還原", title: "生活中的氧化還原", url: "https://youtu.be/taV_wdGLZ90", note: "" },
+            { source: "陳詮", cat: "第2章 氧化還原", title: "氧化還原 觀念大集合", url: "https://youtu.be/PSL2BLuhyQ", note: "" },
+
+            { source: "陳詮", cat: "第3章 酸、鹼、鹽", title: "電解質", url: "https://youtu.be/rdEXI1sTZOA", note: "" },
+            { source: "陳詮", cat: "第3章 酸、鹼、鹽", title: "檢測電解質水溶液", url: "https://youtu.be/2WQ3uuXlqfA", note: "" },
+            { source: "陳詮", cat: "第3章 酸、鹼、鹽", title: "離子與根離子", url: "https://youtu.be/Dsx6S6kwEZc", note: "" },
+            { source: "陳詮", cat: "第3章 酸、鹼、鹽", title: "電離說與強弱電解質", url: "https://youtu.be/6s40jx5JffQ", note: "" },
+            { source: "陳詮", cat: "第3章 酸、鹼、鹽", title: "主題一例題全", url: "https://youtu.be/HovwwzNVaDO", note: "例題影片" },
+            { source: "陳詮", cat: "第3章 酸、鹼、鹽", title: "常見的酸與鹼", url: "https://youtu.be/iJcZUdMj0Zg", note: "" },
+            { source: "陳詮", cat: "第3章 酸、鹼、鹽", title: "體積莫耳濃度", url: "https://youtu.be/BG5jpGV4DuA", note: "含例題" },
+            { source: "陳詮", cat: "第3章 酸、鹼、鹽", title: "溶液的配置、稀釋與混合", url: "https://youtu.be/TT3SHveZsOU", note: "" },
+            { source: "陳詮", cat: "第3章 酸、鹼、鹽", title: "水溶液離子濃度與酸鹼性", url: "https://youtu.be/XIMt3Q3Ffil", note: "" },
+            { source: "陳詮", cat: "第3章 酸、鹼、鹽", title: "酸鹼指示劑", url: "https://youtu.be/B6RLMngiCoc", note: "" },
+            { source: "陳詮", cat: "第3章 酸、鹼、鹽", title: "主題三例題全", url: "https://youtu.be/dIviGRnizK4", note: "" },
+            { source: "陳詮", cat: "第3章 酸、鹼、鹽", title: "酸雨", url: "https://youtu.be/t5G062k6QRU", note: "" },
+            { source: "陳詮", cat: "第3章 酸、鹼、鹽", title: "酸鹼中和 (含例題)", url: "https://youtu.be/sceTWmRUn9k", note: "" },
+            { source: "陳詮", cat: "第3章 酸、鹼、鹽", title: "鹽類", url: "https://youtu.be/3aDXxAIFI_A", note: "" },
+            { source: "陳詮", cat: "第3章 酸、鹼、鹽", title: "酸鹼鹽 觀念大集合", url: "https://youtu.be/StnD2kZcIF0", note: "" },
+
+            { source: "陳詮", cat: "第4章 反應速率", title: "反應速率", url: "https://youtu.be/Bxgb7U5sY_8", note: "" },
+            { source: "陳詮", cat: "第4章 反應速率", title: "影響反應速率因子(活性濃度)", url: "https://youtu.be/XAgU_UU8Lhk", note: "" },
+            { source: "陳詮", cat: "第4章 反應速率", title: "影響反應速率因子(溫度催化)", url: "https://youtu.be/OUf45plpBI", note: "" },
+            { source: "陳詮", cat: "第4章 反應速率", title: "反應速率 例題", url: "https://youtu.be/pcROX7IGNn4", note: "例題影片" },
+            { source: "陳詮", cat: "第4章 反應速率", title: "可逆反應與動態平衡", url: "https://youtu.be/ER5450gxads", note: "" },
+            { source: "陳詮", cat: "第4章 反應速率", title: "物理/化學可逆反應實例", url: "https://youtu.be/s_DSO8RxMno", note: "" },
+            { source: "陳詮", cat: "第4章 反應速率", title: "影響動態平衡因素", url: "https://youtu.be/wYRx3zhj7gU", note: "" },
+            { source: "陳詮", cat: "第4章 反應速率", title: "可逆反應平衡 例題", url: "https://youtu.be/Q5Fg7ugmWbA", note: "例題影片" },
+            { source: "陳詮", cat: "第4章 反應速率", title: "觀念大集合", url: "https://youtu.be/Gpq_CTIMegE", note: "" },
+
+            { source: "陳詮", cat: "第5章 有機化合物", title: "有機化合物定義與檢測", url: "https://youtu.be/Z9piArlF2vk", note: "" },
+            { source: "陳詮", cat: "第5章 有機化合物", title: "分類與碳氫化合物", url: "https://youtu.be/HAUf3yWr2XE", note: "" },
+            { source: "陳詮", cat: "第5章 有機化合物", title: "肥皂與去污原理", url: "https://youtu.be/ki3Re-q97dI", note: "" },
+            { source: "陳詮", cat: "第5章 有機化合物", title: "有機聚合物", url: "https://youtu.be/TI9uVIZTne8", note: "" },
+            { source: "陳詮", cat: "第5章 有機化合物", title: "衣料纖維", url: "https://youtu.be/RB2R-panIUo", note: "" },
+            { source: "陳詮", cat: "第5章 有機化合物", title: "觀念大集合", url: "https://youtu.be/FKJgn7_HIQ", note: "" },
+
+            { source: "陳詮", cat: "第6章 力與壓力", title: "力的基本性質", url: "https://youtu.be/PTXijsBihNg", note: "" },
+            { source: "陳詮", cat: "第6章 力與壓力", title: "力的合成與分解", url: "https://youtu.be/MgNgJvC9cCI", note: "" },
+            { source: "陳詮", cat: "第6章 力與壓力", title: "虎克定律", url: "https://youtu.be/Jpmr5JMJybo", note: "" },
+            { source: "陳詮", cat: "第6章 力與壓力", title: "主題一 例題解析", url: "https://youtu.be/aAEUIqFObeI", note: "例題影片" },
+            { source: "陳詮", cat: "第6章 力與壓力", title: "摩擦力種類與性質", url: "https://youtu.be/N7f2_6N-yul", note: "" },
+            { source: "陳詮", cat: "第6章 力與壓力", title: "摩擦力因素與應用", url: "https://youtu.be/u_ygaIOg2Tw", note: "" },
+            { source: "陳詮", cat: "第6章 力與壓力", title: "摩擦力例題解析", url: "https://youtu.be/xMs4dLwuFlw", note: "例題" },
+            { source: "陳詮", cat: "第6章 力與壓力", title: "壓力的性質 (含例題)", url: "https://youtu.be/smg8j_xdsEA", note: "" },
+            { source: "陳詮", cat: "第6章 力與壓力", title: "液體壓力", url: "https://youtu.be/FdR0XChxO10", note: "" },
+            { source: "陳詮", cat: "第6章 力與壓力", title: "液體壓力例題", url: "https://youtu.be/9TotRuWkdcg", note: "" },
+            { source: "陳詮", cat: "第6章 力與壓力", title: "連通管原理", url: "https://youtu.be/H0K1-RPdUDw", note: "" },
+            { source: "陳詮", cat: "第6章 力與壓力", title: "帕斯卡原理", url: "https://youtu.be/FynIyYe29mA", note: "" },
+            { source: "陳詮", cat: "第6章 力與壓力", title: "大氣壓力", url: "https://youtu.be/EEkbL8QZhdc", note: "" },
+            { source: "陳詮", cat: "第6章 力與壓力", title: "氣壓例題", url: "https://youtu.be/pBiWDRsYdHk", note: "" },
+            { source: "陳詮", cat: "第6章 力與壓力", title: "大氣壓力影響與密閉容器", url: "https://youtu.be/iPus2ZxZ7To", note: "" },
+            { source: "陳詮", cat: "第6章 力與壓力", title: "浮力來源及測量", url: "https://youtu.be/tl9apJ0Fm70", note: "" },
+            { source: "陳詮", cat: "第6章 力與壓力", title: "浮力關係式(浮沉)", url: "https://youtu.be/FV33NgTMpcE", note: "" },
+            { source: "陳詮", cat: "第6章 力與壓力", title: "浮體與沉體應用情境", url: "https://youtu.be/Bv1IQXGCYVA", note: "" },
+            { source: "陳詮", cat: "第6章 力與壓力", title: "浮力例題 part1", url: "https://youtu.be/3rVBxBZk2Uw", note: "" },
+            { source: "陳詮", cat: "第6章 力與壓力", title: "浮力例題 part2", url: "https://youtu.be/vizeTeg1014", note: "" },
+            { source: "陳詮", cat: "第6章 力與壓力", title: "觀念大集合", url: "https://youtu.be/fwu4PSkxfXg", note: "" },
+
+            // --- B3/B4 歷屆會考全集 (依照 001.pdf) ---
+            { source: "全集", cat: "B3C1 基本測量", title: "1-1 實驗安全與設計", url: "https://youtu.be/kQn2Nm0hrCM", note: "" },
+            { source: "全集", cat: "B3C1 基本測量", title: "1-2 長度與體積測量", url: "https://youtu.be/8_2rn5JM3g4", note: "" },
+            { source: "全集", cat: "B3C1 基本測量", title: "1-3 質量的測量", url: "https://youtu.be/Sfot4hVt-js", note: "" },
+            { source: "全集", cat: "B3C1 基本測量", title: "1-4 物質的密度", url: "https://youtu.be/4IX46s7JFk", note: "" },
+            { source: "全集", cat: "B3C1 基本測量", title: "歷屆會考試題解析", url: "https://youtu.be/1axQuntMKwk", note: "考題" },
+
+            { source: "全集", cat: "B3C2 物質世界", title: "2-1 認識物質", url: "https://youtu.be/aEEd5MhLTD0", note: "" },
+            { source: "全集", cat: "B3C2 物質世界", title: "2-2 水溶液及濃度", url: "https://youtu.be/CKNPX091-91", note: "" },
+            { source: "全集", cat: "B3C2 物質世界", title: "2-3 空氣", url: "https://youtu.be/ujNU9HoXCT0", note: "" },
+            { source: "全集", cat: "B3C2 物質世界", title: "歷屆會考試題解析", url: "https://youtu.be/VLEKZTyRRU4", note: "考題" },
+
+            { source: "全集", cat: "B3C3 波動與聲音", title: "3-1 波的傳播", url: "https://youtu.be/JAxyGBJsLgk", note: "" },
+            { source: "全集", cat: "B3C3 波動與聲音", title: "3-2 聲音的傳播", url: "https://youtu.be/tkVgG1MTOq4", note: "" },
+            { source: "全集", cat: "B3C3 波動與聲音", title: "3-3 聲波反射與超聲波", url: "https://youtu.be/Wi8dzz8gus8", note: "" },
+            { source: "全集", cat: "B3C3 波動與聲音", title: "3-4 多變的聲音", url: "https://youtu.be/TJ2VwVVt-Z8", note: "" },
+            { source: "全集", cat: "B3C3 波動與聲音", title: "歷屆會考考題解析", url: "https://youtu.be/YD1hRwiQ_uI", note: "考題" },
+
+            { source: "全集", cat: "B3C4 光現象", title: "4-1 光的直進", url: "https://youtu.be/jvIys5anwVE", note: "" },
+            { source: "全集", cat: "B3C4 光現象", title: "4-2 光的反射與面鏡", url: "https://youtu.be/zu5hKsIMu60", note: "" },
+            { source: "全集", cat: "B3C4 光現象", title: "4-3 光的折射原理", url: "https://youtu.be/8hC094znZxM", note: "" },
+            { source: "全集", cat: "B3C4 光現象", title: "4-4 透鏡的折射", url: "https://youtu.be/KgBH4eGxY4Y", note: "" },
+            { source: "全集", cat: "B3C4 光現象", title: "4-5 光學儀器", url: "https://youtu.be/fEZIpWsyZS0", note: "" },
+            { source: "全集", cat: "B3C4 光現象", title: "4-6 色光與顏色", url: "https://youtu.be/Cq2TzGhJH14", note: "" },
+            { source: "全集", cat: "B3C4 光現象", title: "歷屆會考考題解析", url: "https://youtu.be/5Ri-y0-ASIA", note: "考題" },
+
+            { source: "全集", cat: "B3C5 熱量", title: "5-1 溫度與溫度計", url: "https://youtu.be/iiX1le7kAag", note: "" },
+            { source: "全集", cat: "B3C5 熱量", title: "5-2 熱量與比熱", url: "https://youtu.be/Nb9n2PExZQk", note: "" },
+            { source: "全集", cat: "B3C5 熱量", title: "5-3 熱的傳播方式", url: "https://youtu.be/uRQP2sh2drc", note: "" },
+            { source: "全集", cat: "B3C5 熱量", title: "5-4 熱對物質的影響", url: "https://youtu.be/UfDhzKoG4x8", note: "" },
+            { source: "全集", cat: "B3C5 熱量", title: "歷屆會考考題解析", url: "https://youtu.be/dayK2dDjm_1", note: "考題" },
+
+            { source: "全集", cat: "B4C3 酸鹼鹽", title: "3-1 認識電解質", url: "https://youtu.be/S-g81LsVVYU", note: "" },
+            { source: "全集", cat: "B4C3 酸鹼鹽", title: "3-2 常見的酸與鹼", url: "https://youtu.be/zYJzqQADEbs", note: "" },
+            { source: "全集", cat: "B4C3 酸鹼鹽", title: "3-3 酸鹼濃度", url: "https://youtu.be/IEtEy-Aik6Y", note: "" },
+            { source: "全集", cat: "B4C3 酸鹼鹽", title: "3-4 酸鹼中和", url: "https://youtu.be/BaIo94yk1G8", note: "" },
+            { source: "全集", cat: "B4C3 酸鹼鹽", title: "歷屆會考考題解析", url: "https://youtu.be/zT5c0Q_rWB0", note: "考題" }
         ];
 
         function checkPassword() {
-            const inputField = document.getElementById('entryPassword');
-            const unlockBtn = document.getElementById('unlockBtn');
-            const input = inputField.value.trim();
-
-            if (input === ACCESS_PASSWORD) {
-                unlockBtn.innerText = "驗證成功...";
-                unlockBtn.classList.replace('bg-slate-900', 'bg-green-500');
-                
-                // 強制切換顯示
+            if (document.getElementById('entryPassword').value === ACCESS_PASSWORD) {
                 document.getElementById('authOverlay').style.display = 'none';
                 document.getElementById('app').classList.remove('hidden');
-                
                 initApp();
             } else {
-                const error = document.getElementById('errorMsg');
-                error.classList.remove('hidden');
-                inputField.value = "";
-                inputField.focus();
-                setTimeout(() => error.classList.add('hidden'), 2000);
+                alert("密碼錯誤");
             }
         }
 
-        document.getElementById('entryPassword').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') checkPassword();
-        });
-
         async function initApp() {
-            updateStatus("正在讀取進度...", "bg-amber-400", true);
+            setLoading(true);
             try {
-                const { data, error } = await supabaseClient
-                    .from('science_tracker')
-                    .select('data')
-                    .eq('user_id', myId)
-                    .maybeSingle();
-                
-                if (data && data.data) {
-                    progress = data.data;
-                    updateStatus("進度已同步", "bg-green-500");
-                } else {
-                    updateStatus("歡迎開始學習", "bg-sky-500");
-                }
+                const { data } = await supabaseClient.from('science_tracker').select('data').eq('user_id', userId).maybeSingle();
+                if (data) progress = data.data;
+                updateStatus("已連線", "bg-green-500");
             } catch (e) {
-                updateStatus("離線模式", "bg-slate-400");
+                updateStatus("連線受阻", "bg-red-400");
             }
+            setLoading(false);
             render();
         }
 
-        async function saveToCloud() {
-            updateStatus("儲存中...", "bg-sky-400", true);
-            const { error } = await supabaseClient
-                .from('science_tracker')
-                .upsert({ user_id: myId, data: progress }, { onConflict: 'user_id' });
+        async function saveProgress() {
+            updateStatus("正在儲存...", "bg-amber-400", true);
+            await supabaseClient.from('science_tracker').upsert({ user_id: userId, data: progress });
+            updateStatus("已連線", "bg-green-500");
+        }
 
-            if (error) {
-                updateStatus("儲存失敗", "bg-red-500");
-            } else {
-                updateStatus("已安全存檔", "bg-green-500");
+        function render() {
+            const container = document.getElementById('courseList');
+            container.innerHTML = '';
+            
+            const list = masterData.filter(d => d.source === currentTab);
+            const chapters = [...new Set(list.map(d => d.cat))];
+
+            // 更新總進度
+            const total = list.length;
+            const watched = list.filter(d => progress[d.url]).length;
+            const percent = Math.round((watched / total) * 100) || 0;
+            
+            document.getElementById('totalCount').innerText = total;
+            document.getElementById('totalWatched').innerText = watched;
+            document.getElementById('totalPercent').innerText = percent;
+            document.getElementById('totalBar').style.width = `${percent}%`;
+
+            chapters.forEach(cat => {
+                const items = list.filter(d => d.cat === cat);
+                const section = document.createElement('div');
+                section.innerHTML = `
+                    <h3 class="text-lg font-black text-slate-800 mb-3 px-1 border-l-4 border-sky-500 pl-3">${cat}</h3>
+                    <div class="space-y-3">
+                        ${items.map(item => {
+                            const isDone = progress[item.url];
+                            return `
+                                <div class="glass-card p-4 flex items-center gap-4 ${isDone ? 'completed shadow-none' : 'shadow-sm'}" onclick="toggleDone('${item.url}')">
+                                    <input type="checkbox" class="custom-checkbox" ${isDone ? 'checked' : ''}>
+                                    <div class="flex-1">
+                                        <h4 class="text-[14px] font-bold text-slate-700 leading-tight">${item.title}</h4>
+                                        ${item.note ? `<span class="text-[9px] font-black bg-slate-100 text-slate-400 px-1.5 py-0.5 rounded mt-1 inline-block uppercase">${item.note}</span>` : ''}
+                                    </div>
+                                    <a href="${item.url}" target="_blank" onclick="event.stopPropagation()" class="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-red-500 hover:bg-red-500 hover:text-white transition-all">
+                                        <i class="fab fa-youtube"></i>
+                                    </a>
+                                </div>
+                            `;
+                        }).join('')}
+                    </div>
+                `;
+                container.appendChild(section);
+            });
+        }
+
+        function toggleDone(url) {
+            if (progress[url]) delete progress[url];
+            else {
+                progress[url] = true;
+                confetti({ particleCount: 40, spread: 60, origin: { y: 0.8 } });
             }
+            render();
+            saveProgress();
+        }
+
+        function switchTab(t) {
+            currentTab = t;
+            document.getElementById('tab-陳詮').className = t === '陳詮' ? 'tab-btn active' : 'tab-btn';
+            document.getElementById('tab-全集').className = t === '全集' ? 'tab-btn active' : 'tab-btn';
+            render();
         }
 
         function updateStatus(text, color, pulse = false) {
@@ -184,50 +291,8 @@
             dot.className = `w-2 h-2 rounded-full ${color} ${pulse ? 'animate-pulse' : ''}`;
         }
 
-        function render() {
-            const container = document.getElementById('courseList');
-            container.innerHTML = '';
-            
-            const list = courseData.filter(c => c.teacher === currentTeacher);
-            
-            list.forEach(item => {
-                const isDone = progress[item.url] === true;
-                const card = document.createElement('div');
-                card.className = `glass-card p-5 flex items-center gap-5 ${isDone ? 'completed shadow-none' : 'shadow-md shadow-slate-200/50'}`;
-                
-                card.innerHTML = `
-                    <div class="flex-shrink-0">
-                        <input type="checkbox" class="custom-checkbox" ${isDone ? 'checked' : ''}>
-                    </div>
-                    <div class="flex-1 min-w-0">
-                        <span class="text-[10px] font-black text-slate-400 tracking-widest uppercase">${item.cat}</span>
-                        <h3 class="text-base font-bold text-slate-800 leading-tight truncate mt-0.5">${item.title}</h3>
-                    </div>
-                    <a href="${item.url}" target="_blank" onclick="event.stopPropagation()" class="flex-shrink-0 w-12 h-12 rounded-2xl bg-red-50 text-red-500 flex items-center justify-center hover:bg-red-500 hover:text-white transition-all">
-                        <i class="fab fa-youtube text-xl"></i>
-                    </a>
-                `;
-
-                card.onclick = () => {
-                    if (progress[item.url]) {
-                        delete progress[item.url];
-                    } else {
-                        progress[item.url] = true;
-                        confetti({ particleCount: 30, spread: 60, origin: { y: 0.8 }, colors: ['#22c55e', '#3b82f6'] });
-                    }
-                    render();
-                    saveToCloud();
-                };
-
-                container.appendChild(card);
-            });
-        }
-
-        function switchTab(t) {
-            currentTeacher = t;
-            document.getElementById('tab-陳詮').classList.toggle('active', t === '陳詮');
-            document.getElementById('tab-劉川楓').classList.toggle('active', t === '劉川楓');
-            render();
+        function setLoading(s) {
+            document.body.style.opacity = s ? '0.6' : '1';
         }
     </script>
 </body>
